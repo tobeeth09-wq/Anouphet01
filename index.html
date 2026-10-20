@@ -2948,15 +2948,8 @@
 
     // ==========================================
     // MUANJAI AI BEAUTY ADVISOR CHATBOT ENGINE
+    // Smart In-Browser Lao Skincare Advisor (100% Client-Side, Zero API Keys)
     // ==========================================
-    const GEMINI_API_KEY = "AQ.Ab8RN6It9AZDy17MJYk6FnCx5oISQbzQZpRhuAKwWNM1XXKIRw";
-    const GEMINI_MODELS = [
-      "gemini-3-flash-preview",
-      "gemini-3.5-flash",
-      "gemini-3.8-flash",
-      "gemini-flash-latest"
-    ];
-
     let aiChatState = {
       messages: [],
       isThinking: false
@@ -3151,206 +3144,356 @@
       submitAiChatMessage(queryText);
     }
 
-    async function submitAiChatMessage(customText) {
+    function submitAiChatMessage(customText) {
       if (aiChatState.isThinking) return;
 
-      const input = document.getElementById('ai-chat-input');
-      const text = customText || (input ? input.value : '');
-      const trimmed = (text || '').trim();
+      const input = document.getElementById("ai-chat-input");
+      const text = customText || (input ? input.value : "");
+      const trimmed = (text || "").trim();
       if (!trimmed) return;
 
-      if (input && !customText) input.value = '';
+      if (input && !customText) input.value = "";
 
       // Append user message
       aiChatState.messages.push({
-        role: 'user',
+        role: "user",
         text: trimmed
       });
       aiChatState.isThinking = true;
       renderAiChatMessages();
 
-      try {
-        await callGeminiAdvisorApi(trimmed);
-      } catch (err) {
-        console.warn("AI API fallback triggered:", err);
-        executeLocalAdvisorFallback(trimmed);
-      } finally {
-        aiChatState.isThinking = false;
-        renderAiChatMessages();
-      }
-    }
-
-    function buildCatalogSystemInstruction() {
-      const catalogSummary = PRODUCTS.map(p => 
-        `ID:${p.id} | ${p.name} (${p.brand}) | ລາຄາ:${p.price} LAK | ໝວດ:${p.category} | ບັນຫາ:${p.concern} | ສ່ວນປະສົມ:${(p.keyIngredients||[]).join(', ')} | ເໝາະກັບ:${(p.suitability||[]).join(', ')}`
-      ).join('\n');
-
-      return `ເຈົ້າແມ່ນ "Muanjai AI Beauty Advisor" ທີ່ປຶກສາ ແລະ ຊ່ຽວຊານດ້ານຜິວພັນປະຈຳຮ້ານ MUANJAI BEAUTY (ປະເທດລາວ).
-ເຈົ້າບໍ່ແມ່ນພະນັກງານຂາຍທີ່ຍັດເຍຍດສິນຄ້າ (ຫ້າມ Hard-Sell ເດັດຂາດ). ເຈົ້າຄືທີ່ປຶກສາທີ່ຈິງໃຈ, ສຸພາບ, ອ່ອນຫວານ ແລະ ໃຫ້ຄວາມຮູ້ແກ່ລູກຄ້າກ່ອນສະເໝີ.
-
-ກົດລະບຽບ ແລະ ຮູບແບບການຕອບ (ປະຕິບັດຕາມລຳດັບ):
-1. **Empathy & Education (ເຂົ້າໃຈ & ບອກສາເຫດກ່ອນ):**
-   - ເລີ່ມຕົ້ນດ້ວຍການທັກທາຍຢ່າງສຸພາບ ແລະ ສະແດງຄວາມເຫັນອົກເຫັນໃຈ (ຕົວຢ່າງ: "ນ້ອງເຂົ້າໃຈເລີຍເຈົ້າ ບັນຫາສິວ/ຜິວແຫ້ງອາດຈະເຮັດໃຫ້ກັງວົນໃຈ...").
-   - ອະທິບາຍສັ້ນໆ 1-2 ປະໂຫຍກເຖິງ "ສາເຫດ" ທີ່ມັກເກີດບັນຫານີ້ (ເຊັ່ນ: ຮູຂຸມຂົນອຸດຕັນ, ເກາະປ້ອງກັນຜິວອ່ອນແອ, ຂາດນ້ຳ).
-2. **Daily Skincare Tip (ເຄັດລັບການດູແລປະຈຳວັນ):**
-   - ແນະນຳເຄັດລັບງ່າຍໆໃນຊີວິດປະຈຳວັນ (ເຊັ່ນ: ຫຼີກລ່ຽງການບີບສິວ, ບໍ່ລ້າງໜ້າແຮງເກີນໄປ, ດື່ມນ້ຳ, ທາກັນແດດ).
-   - ແນະນຳກຸ່ມ "ສານສະກັດ/ສ່ວນປະສົມ" ທີ່ເໝາະສົມ (ເຊັ່ນ Heartleaf, Hyaluronic Acid, Centella, BHA).
-3. **Gentle Single Recommendation (ແນະນຳຢ່າງອ່ອນໂຍນພຽງ 1 ຕົວຫຼັກ):**
-   - ຫ້າມຍັດເຍຍດສິນຄ້າ 2-3 ຕົວພ້ອມກັນ! ໃຫ້ເລືອກສິນຄ້າທີ່ເປັນ "Hero Item" ທີ່ກົງກັບບັນຫາທີ່ສຸດພຽງ 1 ລາຍການ (ຫຼື ສູງສຸດບໍ່ເກີນ 2 ລາຍການເມື່ອຈຳເປັນແທ້ໆ).
-   - ບອກເຫດຜົນວ່າເປັນຫຍັງຈຶ່ງເລືອກຕົວນີ້ມາຊ່ວຍ.
-   - ທຸກຄັ້ງທີ່ແນະນຳ ຕ້ອງໃສ່ລະຫັດ [PRODUCT:id] ເຊັ່ນ [PRODUCT:1] ຕໍ່ທ້າຍຊື່ສິນຄ້າສະເໝີ.
-4. **Soft Follow-up (ຖາມຕໍ່ຢ່າງສຸພາບ ບໍ່ບັງຄັບຊື້):**
-   - ປິດທ້າຍດ້ວຍຄຳຖາມທີ່ອ່ອນໂຍນ ເຊັ່ນ: "ທ່ານຢາກໃຫ້ນ້ອງແນະນຳຂັ້ນຕອນການລ້າງໜ້າ ຫຼື ຄຣີມກັນແດດເພີ່ມເຕີມບໍ່ເຈົ້າ?" ຫຼື "ຕອນນີ້ທ່ານມີສະກິນແຄຣ໌ຂັ້ນຕອນໃດແລ້ວແດ່ ບອກນ້ອງໄດ້ເດີເຈົ້າ".
-5. **Language & Scope Guardrails:**
-   - ຕອບເປັນພາສາລາວທີ່ສຸພາບ (ເຈົ້າ, ເດີເຈົ້າ).
-   - ແນະນຳສະເພາະສິນຄ້າທີ່ມີໃນລາຍການ PRODUCTS ຂ້າງລຸ່ມນີ້ເທົ່ານັ້ນ. ຫ້າມແນະນຳສິນຄ້າທີ່ບໍ່ມີໃນຮ້ານ!
-   - ຖ້າລູກຄ້າຖາມເລື່ອງນອກເໜືອຈາກຄວາມງາມ ແລະ ສະກິນແຄຣ໌ ໃຫ້ປະຕິເສດຢ່າງສຸພາບ.
-
-ລາຍການສິນຄ້າໃນຮ້ານ MUANJAI BEAUTY:
-${catalogSummary}`;
-    }
-
-    async function callGeminiAdvisorApi(userQuery) {
-      const systemInstruction = buildCatalogSystemInstruction();
-
-      // Build conversation history (up to last 6 messages)
-      const recent = aiChatState.messages.slice(-6);
-      const contents = recent.map(m => ({
-        role: m.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: m.text }]
-      }));
-
-      let lastError = null;
-
-      // Fallback loop across models
-      for (const model of GEMINI_MODELS) {
+      // Realistic typing delay (450ms) for an authentic, premium AI feel
+      setTimeout(() => {
         try {
-          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 12000);
-
-          const res = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            signal: controller.signal,
-            body: JSON.stringify({
-              contents: contents,
-              systemInstruction: { parts: [{ text: systemInstruction }] },
-              generationConfig: {
-                temperature: 0.7,
-                maxOutputTokens: 2048,
-                thinkingConfig: {
-                  thinkingBudget: 0
-                }
-              }
-            })
+          const aiResponse = processSmartInBrowserAi(trimmed);
+          aiChatState.messages.push({
+            role: "assistant",
+            text: aiResponse.text,
+            productIds: aiResponse.productIds || []
           });
-          clearTimeout(timeoutId);
+        } catch (err) {
+          console.error("AI Advisor error:", err);
+          aiChatState.messages.push({
+            role: "assistant",
+            text: "ສະບາຍດີເຈົ້າ! 🙏 ຂໍອະໄພຫຼາຍໆເດີເຈົ້າ ທ່ານສາມາດລອງຖາມເລື່ອງບັນຫາຜິວພັນ ເຊັ່ນ ສິວ, ຜິວແຫ້ງ, ກັນແດດ, ຫຼື ຖາມຫາສິນຄ້າທີ່ສົນໃຈໄດ້ເລີຍເຈົ້າ ✨",
+            productIds: [1]
+          });
+        } finally {
+          aiChatState.isThinking = false;
+          renderAiChatMessages();
+        }
+      }, 450);
+    }
 
-          if (!res.ok) {
-            const errData = await res.json().catch(() => ({}));
-            throw new Error(`HTTP ${res.status}: ${errData?.error?.message || 'Failed'}`);
-          }
+    // ===============================================================
+    // SMART IN-BROWSER AI ENGINE (100% Client-Side Lao Skincare NLP)
+    // Hybrid Soft-Consultant: Empathy -> Cause -> Free Tips -> 1 Hero -> Follow-up
+    // ===============================================================
+function processSmartInBrowserAi(rawQuery) {
+      const q = (rawQuery || "").toLowerCase().trim();
 
-          const data = await res.json();
-          const candidate = data?.candidates?.[0];
-          const parts = candidate?.content?.parts || [];
-          const responseText = parts.map(p => p.text || '').join('');
-
-          if (responseText && responseText.trim()) {
-            // Extract product IDs
-            const productIds = [];
-            const regex = /\[PRODUCT:(\d+)\]/g;
-            let match;
-            while ((match = regex.exec(responseText)) !== null) {
-              const pid = parseInt(match[1]);
-              if (!productIds.includes(pid)) productIds.push(pid);
-            }
-
-            // Secondary smart match: if no explicit tag was printed, check product names
-            if (productIds.length === 0) {
-              const lower = responseText.toLowerCase();
-              PRODUCTS.forEach(p => {
-                const brandMatch = p.brand && lower.includes(p.brand.toLowerCase());
-                if (brandMatch || lower.includes(p.name.toLowerCase())) {
-                  if (!productIds.includes(p.id) && productIds.length < 1) {
-                    productIds.push(p.id);
-                  }
-                }
-              });
-            }
-
-            // Limit product recommendations to at most 2 items to prevent hard-selling
-            const finalProductIds = productIds.slice(0, 2);
-
-            aiChatState.messages.push({
-              role: 'assistant',
-              text: responseText,
-              productIds: finalProductIds
-            });
-            return; // Success!
-          }
-        } catch (e) {
-          lastError = e;
-          console.warn(`Model ${model} attempt failed:`, e.message);
-          // Continue to next model in fallback list
+      // 1. DIRECT PRODUCT / BRAND RECOGNITION (Search against catalog)
+      for (const p of PRODUCTS) {
+        const brand = (p.brand || "").toLowerCase();
+        const name = (p.name || "").toLowerCase();
+        if ((brand && q.includes(brand)) || q.includes(name)) {
+          return {
+            text: `ສະບາຍດີເຈົ້າ! 🙏 ຍິນດີຕອບເລື່ອງ [PRODUCT:${p.id}] **${p.name}** ເລີຍເຈົ້າ ✨\n\n` +
+              `💡 **ຈຸດເດັ່ນ & ສັບພະຄຸນ:**\n` +
+              `${p.subtitle || ""}\n` +
+              `* **ສ່ວນປະສົມຫຼັກ:** ${(p.keyIngredients || []).join(", ")}\n` +
+              `* **ເໝາະສຳລັບ:** ${(p.suitability || []).join(", ")}\n\n` +
+              `✨ **ຄຳແນະນຳການນຳໃຊ້:**\n` +
+              `ສິນຄ້າໂຕນີ້ເປັນສິນຄ້າແທ້ 100% ທີ່ໄດ້ຮັບຄວາມນິຍົມສູງຫຼາຍໃນຮ້ານ MUANJAI BEAUTY ເນື່ອງຈາກຄວາມອ່ອນໂຍນ ແລະ ເຫັນຜົນຊັດເຈນ. ສາມາດໃຊ້ເປັນປະຈຳຕາມຂັ້ນຕອນສະກິນແຄຣ໌ໄດ້ເລີຍເຈົ້າ.\n\n` +
+              `ທ່ານຢາກຮູ້ວິທີໃຊ້ຄູ່ກັບສະກິນແຄຣ໌ຂັ້ນຕອນອື່ນ ຫຼື ຢາກສອບຖາມສະຕັອກສາຂາໃດ ບອກນ້ອງໄດ້ເດີເຈົ້າ 😊`,
+            productIds: [p.id]
+          };
         }
       }
 
-      // If all models failed, throw to local fallback
-      throw lastError || new Error("All AI models failed");
-    }
-
-    function executeLocalAdvisorFallback(query) {
-      const q = (query || '').toLowerCase();
-      let matchedIds = [];
-      let text = "";
-
-      if (q.includes("ສິວ") || q.includes("ອຸດຕັນ") || q.includes("acne")) {
-        matchedIds = [1]; // Single core hero: Anua Heartleaf Toner
-        text = `ສະບາຍດີເຈົ້າ! 🙏 ນ້ອງເຂົ້າໃຈເລີຍເຈົ້າ ບັນຫາສິວອັກເສບ ແລະ ສິວອຸດຕັນ ອາດຈະເຮັດໃຫ້ຮູ້ສຶກບໍ່ໝັ້ນໃຈເລີຍ.\n\n` +
-          `💡 **ສາເຫດ & ເຄັດລັບການດູແລ:**\n` +
-          `ສິວອັກເສບມັກເກີດຈາກນ້ຳມັນສ່ວນເກີນສະສົມຮ່ວມກັບເຊວຜິວທີ່ຕາຍແລ້ວຈົນເກີດແບັກທີເຣຍ. ສິ່ງສຳຄັນອັນດັບທຳອິດແມ່ນ **ຫຼີກລ່ຽງການບີບສິວ** ແລະ ບໍ່ຂັດຖູໜ້າແຮງເກີນໄປ. ສ່ວນປະສົມທີ່ເໝາະສົມທີ່ສຸດຄື **Heartleaf (ຜັກຄາວທອງ)** ທີ່ຊ່ວຍປອບປະໂລມ ແລະ ຫຼຸດການອັກເສບຢ່າງອ່ອນໂຍນ.\n\n` +
-          `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳ:**\n` +
-          `ສຳລັບຂັ້ນຕອນເລີ່ມຕົ້ນ ຂໍແນະນຳ [PRODUCT:1] **Anua Heartleaf 77% Soothing Toner** ເຊິ່ງຈະຊ່ວຍປອບປະໂລມຮອຍແດງ ແລະ ປັບສະພາບຜິວໃຫ້ພ້ອມຮັບການບຳລຸງໂດຍບໍ່ລະຄາຍເຄືອງເຈົ້າ.\n\n` +
-          `ຖ້າທ່ານຢາກໃຫ້ນ້ອງແນະນຳໂຟມລ້າງໜ້າ ຫຼື ຄຣີມແຕ້ມສິວຄູ່ກັນ ບອກນ້ອງໄດ້ເລີຍເດີເຈົ້າ! 😊`;
-      } else if (q.includes("ແຫ້ງ") || q.includes("ຂາດນ້ຳ") || q.includes("dry")) {
-        matchedIds = [3]; // Single core hero: Torriden Hyaluronic Serum
-        text = `ສະບາຍດີເຈົ້າ! 🙏 ສຳລັບບັນຫາຜິວແຫ້ງ ແລະ ຂາດນ້ຳ ເຮັດໃຫ້ຜິວຕຶງ ຫຼື ເບິ່ງບໍ່ສົດໃສ ນ້ອງເຂົ້າໃຈດີເລີຍເຈົ້າ.\n\n` +
-          `💡 **ສາເຫດ & ເຄັດລັບການດູແລ:**\n` +
-          `ພາວະຜິວຂາດນ້ຳເກີດຈາກເກາະປ້ອງກັນຜິວ (Skin Barrier) ສູນເສຍຄວາມຊຸ່ມຊື່ນ. ແນະນຳໃຫ້ດື່ມນ້ຳໃຫ້ພຽງພໍ, ຫຼີກລ່ຽງການລ້າງໜ້າດ້ວຍນ້ຳອຸ່ນ, ແລະ ເນັ້ນເຕີມ **Hyaluronic Acid ໂມເລກຸນນ້ອຍ** ທີ່ຊຶມເຂົ້າສູ່ຜິວໄດ້ເລິກ.\n\n` +
-          `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳ:**\n` +
-          `ນ້ອງຂໍແນະນຳ [PRODUCT:3] **Torriden Dive-In Hyaluronic Serum** ເຊິ່ງເປັນເຊຣັ່ມເຕີມນ້ຳໃຫ້ຜິວອີ່ມຟູເດັ້ງຕະຫຼອດມື້ ໂດຍບໍ່ໜຽວໜຽະໜ້າເລີຍເຈົ້າ.\n\n` +
-          `ທ່ານມີມອຍສເຈີໄຣເຊີລັອກຄວາມຊຸ່ມຊື່ນໃຊ້ຄູ່ກັນແລ້ວບໍ່ເຈົ້າ? ຖ້າຍັງບໍ່ມີ ບອກນ້ອງໄດ້ເດີເຈົ້າ!`;
-      } else if (q.includes("ແດດ") || q.includes("ກັນແດດ") || q.includes("sun")) {
-        matchedIds = [4]; // Single core hero: La Roche-Posay UVmune
-        text = `ສະບາຍດີເຈົ້າ! 🙏 ການເລືອກຄຣີມກັນແດດທີ່ເໝາະກັບຜິວເປັນເລື່ອງທີ່ສຳຄັນທີ່ສຸດໃນການດູແລຜິວເລີຍເຈົ້າ.\n\n` +
-          `💡 **ເຄັດລັບການດູແລ:**\n` +
-          `ສຳລັບຜິວໜ້າໃນອາກາດບ້ານເຮົາ ຄວນເລືອກກັນແດດເນື້ອຟລູອິດ (Fluid) ບາງເບົາ ທີ່ຄຸມມັນໄດ້ດີ ແລະ ບໍ່ອຸດຕັນຮູຂຸມຂົນ ພ້ອມທັງປົກປ້ອງ Ultra-long UVA ເພື່ອປ້ອງກັນຝ້າ-ກະ.\n\n` +
-          `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳ:**\n` +
-          `ນ້ອງຂໍແນະນຳ [PRODUCT:4] **La Roche-Posay Anthelios UVmune 400** ເຊິ່ງເປັນກັນແດດເນື້ອເບົາ ຄຸມມັນດົນ ແລະ ປົກປ້ອງຜິວໄດ້ຢ່າງໝັ້ນໃຈທີ່ສຸດເຈົ້າ.\n\n` +
-          `ທ່ານສາມາດສຶກສາຂໍ້ມູນ ຫຼື ສອບຖາມວິທີທາກັນແດດໃຫ້ມີປະສິດທິພາບສູງສຸດໄດ້ເລີຍເດີເຈົ້າ!`;
-      } else if (q.includes("ແພ້ງ່າຍ") || q.includes("ແດງ") || q.includes("sensitive")) {
-        matchedIds = [2]; // Single core hero: Skin1004 Centella
-        text = `ສະບາຍດີເຈົ້າ! 🙏 ຜິວແພ້ງ່າຍ ແລະ ລະຄາຍເຄືອງງ່າຍ ຕ້ອງໄດ້ຮັບການດູແລທີ່ອ່ອນໂຍນເປັນພິເສດເລີຍເຈົ້າ.\n\n` +
-          `💡 **ສາເຫດ & ເຄັດລັບ:**\n` +
-          `ເກາະປ້ອງກັນຜິວທີ່ອ່ອນແອມັກເຮັດໃຫ້ຜິວໄວຕໍ່ສິ່ງກະຕຸ້ນ. ແນະນຳໃຫ້ຫຼຸດຂັ້ນຕອນສະກິນແຄຣ໌ທີ່ຊັບຊ້ອນລົງ (Skinimalism) ແລະ ໃຊ້ສານສະກັດທີ່ຊ່ວຍສ້າງເກາະຜິວ ເຊັ່ນ **Centella Asiatica (ໃບບົວກົກ)**.\n\n` +
-          `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳ:**\n` +
-          `ນ້ອງຂໍແນະນຳ [PRODUCT:2] **Skin1004 Madagascar Centella Ampoule** ສານສະກັດໃບບົວກົກ 100% ທີ່ຊ່ວຍຟື້ນຟູຜິວໃຫ້ແຂງແຮງ ແລະ ຫຼຸດຮອຍແດງໄດ້ຢ່າງອ່ອນໂຍນທີ່ສຸດເຈົ້າ.\n\n` +
-          `ທ່ານຢາກປຶກສາຂັ້ນຕອນການລ້າງໜ້າສຳລັບຜິວແພ້ງ່າຍເພີ່ມເຕີມບໍ່ເຈົ້າ?`;
-      } else {
-        matchedIds = [1];
-        text = `ສະບາຍດີເຈົ້າ! 🙏 ສຳລັບການເລີ່ມຕົ້ນດູແລຜິວໜ້າ (Basic Skincare), ຫົວໃຈສຳຄັນແມ່ນການປອບປະໂລມ ແລະ ເສີມຄວາມແຂງແຮງໃຫ້ກັບຜິວເປັນອັນດັບທຳອິດ.\n\n` +
-          `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳສຳລັບທຸກສະພາບຜິວ:**\n` +
-          `ຂໍແນະນຳ [PRODUCT:1] **Anua Heartleaf 77% Soothing Toner** ເຊິ່ງເປັນໂທນເນີປັບສະພາບຜິວຫຼັງລ້າງໜ້າ ຊ່ວຍໃຫ້ຜິວສະຫງົບ ແລະ ດູດຊຶມຄຣີມບຳລຸງໄດ້ດີຂຶ້ນເຈົ້າ.\n\n` +
-          `ທ່ານມີບັນຫາຜິວສະເພາະໃດທີ່ຢາກປຶກສາເພີ່ມ ບອກນ້ອງໄດ້ເລີຍເດີເຈົ້າ!`;
+      // 2. GREETINGS & CASUAL HELLO
+      if (/^(ສະບາຍດີ|ສະບາຍດີເຈົ້າ|ສະບາຍດີຕອນເຊົ້າ|ສະບາຍດີຕອນແລງ|hello|hi|sabaidee|hey)$/i.test(q)) {
+        return {
+          text: `ສະບາຍດີເຈົ້າ! 🙏 ຍິນດີຕ້ອນຮັບສູ່ **MUANJAI BEAUTY** ເຈົ້າ.\n\n` +
+            `ນ້ອງແມ່ນທີ່ປຶກສາຜິວພັນສ່ວນຕົວຂອງທ່ານ ພ້ອມຊ່ວຍແນະນຳວິທີດູແລຜິວ, ສາເຫດບັນຫາຜິວ, ແລະ ເລືອກສະກິນແຄຣ໌ທີ່ເໝາະສົມທີ່ສຸດກັບທ່ານເຈົ້າ.\n\n` +
+            `ມື້ນີ້ທ່ານມີບັນຫາຜິວເລື່ອງໃດເປັນພິເສດບໍ່ເຈົ້າ? ເຊັ່ນ:\n` +
+            `* 🔴 **ບັນຫາສິວ / ຮອຍສິວ / ຮູຂຸມຂົນ**\n` +
+            `* 💧 **ຜິວແຫ້ງຂາດນ້ຳ / ຜິວລອກຕຶງ**\n` +
+            `* ☀️ **ເລືອກຄຣີມກັນແດດຄຸມມັນ / ບໍ່ອຸດຕັນ**\n` +
+            `* 🌸 **ຜິວແພ້ງ່າຍ / ເກາະປ້ອງກັນຜິວອ່ອນແອ**\n\n` +
+            `ພິມບອກນ້ອງ ຫຼື ກົດປຸ່ມເລືອກໄວດ້ານເທິງໄດ້ເລີຍເດີເຈົ້າ 😊`,
+          productIds: []
+        };
       }
 
-      aiChatState.messages.push({
-        role: 'assistant',
-        text: text,
-        productIds: matchedIds
-      });
+      // 3. GRATITUDE / THANK YOU
+      if (q.includes("ຂອບໃຈ") || q.includes("thank") || q.includes("thx") || q.includes("ຂອບໃຈຫຼາຍ")) {
+        return {
+          text: `ຍິນດີຫຼາຍໆເລີຍເຈົ້າ! 🙏 ຄວາມສຸກຂອງນ້ອງຄືການໄດ້ເຫັນລູກຄ້າມີຜິວທີ່ແຂງແຮງ ແລະ ສົດໃສຂຶ້ນ ✨\n\n` +
+            `ຫາກທ່ານມີຂໍ້ສົງໄສເພີ່ມເຕີມໃນອະນາຄົດ ຫຼື ຢາກປຶກສາຂັ້ນຕອນການໃຊ້ສະກິນແຄຣ໌ ສາມາດທັກຫານ້ອງໄດ້ຕະຫຼອດເວລາເລີຍເດີເຈົ້າ ຂໍໃຫ້ມີມື້ທີ່ດີ ແລະ ຜິວພັນສົດໃສເຈົ້າ! 💖`,
+          productIds: []
+        };
+      }
+
+      // 4. ROUTINE ORDER & HOW TO USE
+      if (q.includes("ຂັ້ນຕອນ") || q.includes("ລຳດັບ") || q.includes("ໃຊ້ແນວໃດ") || q.includes("ທາໂຕໃດກ່ອນ") || q.includes("routine") || q.includes("order") || (q.includes("step") && !q.includes("dark"))) {
+        return {
+          text: `ສະບາຍດີເຈົ້າ! 🙏 ນ້ອງຍິນດີແນະນຳລຳດັບຂັ້ນຕອນສະກິນແຄຣ໌ທີ່ຖືກຕ້ອງໃຫ້ເລີຍເຈົ້າ ຫຼັກການງ່າຍໆຄື **"ລົງຈາກເນື້ອແຫຼວສຸດ ໄປຫາເນື້ອຂຸ້ນສຸດ"**:\n\n` +
+            `☀️ **ຂັ້ນຕອນຕອນເຊົ້າ (Morning Routine):**\n` +
+            `1. ລ້າງໜ້າດ້ວຍນ້ຳສະອາດ ຫຼື ໂຟມອ່ອນໂຍນ\n` +
+            `2. ໂທນເນີ (Toner) ປັບສະພາບຜິວ\n` +
+            `3. ເຊຣັ່ມ (Serum) ບຳລຸງສະເພາະຈຸດ\n` +
+            `4. ມອຍສເຈີໄຣເຊີ (Moisturizer) ລັອກຄວາມຊຸ່ມຊື່ນ\n` +
+            `5. **ຄຣີມກັນແດດ (Sunscreen) ຂັ້ນຕອນສຸດທ້າຍທີ່ຂາດບໍ່ໄດ້!**\n\n` +
+            `🌙 **ຂັ້ນຕອນຕອນກາງຄືນ (Night Routine):**\n` +
+            `1. ຄລີນຊິ່ງບາມ/ອອຍລ໌ (Double Cleanse) ເພື່ອລ້າງກັນແດດ\n` +
+            `2. ໂຟມລ້າງໜ້າ\n` +
+            `3. ໂທນເນີ / ນ້ຳຕົບ\n` +
+            `4. ເຊຣັ່ມ / ແອມພູລ\n` +
+            `5. ໄນທ໌ຄຣີມ ຫຼື ມອຍສເຈີໄຣເຊີເຂັ້ມຂຸ້ນ\n\n` +
+            `✨ **ສິນຄ້າຫຼັກສຳລັບຂັ້ນຕອນເລີ່ມຕົ້ນ:**\n` +
+            `ຂໍແນະນຳ [PRODUCT:1] **Anua Heartleaf 77% Soothing Toner** ເປັນຂັ້ນຕອນທຳອິດຫຼັງລ້າງໜ້າ ຊ່ວຍເປີດຜິວໃຫ້ພ້ອມຮັບການບຳລຸງເຈົ້າ.\n\n` +
+            `ຕອນນີ້ທ່ານມີສະກິນແຄຣ໌ຂັ້ນຕອນໃດແລ້ວແດ່ ບອກນ້ອງໄດ້ເດີເຈົ້າ 😊`,
+          productIds: [1]
+        };
+      }
+
+      // 5. SUNSCREEN & UV DEFENSE (Checked before general acne/oily because user explicitly asks for sunscreen)
+      if (q.includes("ກັນແດດ") || q.includes("ແດດ") || q.includes("sun") || q.includes("spf") || q.includes("uv")) {
+        const isDry = q.includes("ແຫ້ງ") || q.includes("ຊຸ່ມຊື່ນ") || q.includes("glow");
+        const pid = isDry ? 7 : 8; // BOJ Relief Sun for dry, MizuMi Water Serum for oily/combo
+        const p = PRODUCTS.find(x => x.id === pid) || PRODUCTS[7];
+        return {
+          text: `ສະບາຍດີເຈົ້າ! 🙏 ການທາຄຣີມກັນແດດເປັນຂັ້ນຕອນທີ່ສຳຄັນທີ່ສຸດໃນການດູແລຜິວເລີຍເຈົ້າ ດີໃຈຫຼາຍທີ່ທ່ານໃຫ້ຄວາມສຳຄັນ.\n\n` +
+            `💡 **ເຄັດລັບການທາກັນແດດໃຫ້ມີປະສິດທິພາບສູງສຸດ:**\n` +
+            `ແສງແດດ ແລະ ລັງສີ UV ເປັນສາເຫດຫຼັກ 80% ທີ່ເຮັດໃຫ້ຜິວແກ່ກ່ອນໄວ, ເກີດຝ້າ-ກະ, ແລະ ເຮັດໃຫ້ເກາະປ້ອງກັນຜິວເສື່ອມສະພາບ.\n` +
+            `* **ທາໃນປະລິມານທີ່ພຽງພໍ:** ບີບກັນແດດປະມານ 2 ຂໍ້ຂໍ້ມື ສຳລັບທົ່ວໃບໜ້າ ແລະ ລຳຄໍ.\n` +
+            `* **ທາກ່ອນອອກແດດ 15-20 ນາທີ:** ເພື່ອໃຫ້ເນື້ອກັນແດດເຊັດຕົວ ແລະ ສ້າງຟິມປົກປ້ອງຜິວຢ່າງເຕັມທີ່.\n` +
+            `* **ເລືອກເນື້ອທີ່ບໍ່ອຸດຕັນ:** ເນື້ອ Water Serum ບາງເບົາ ຊຶມໄວ ຈະຊ່ວຍຄຸມມັນ ແລະ ບໍ່ເຮັດໃຫ້ເກີດສິວອຸດຕັນ.\n\n` +
+            `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳ:**\n` +
+            `ຂໍແນະນຳ [PRODUCT:${p.id}] **${p.name}** ເນື້ອສຳຜັດບາງເບົາສະບາຍຜິວ ປົກປ້ອງສູງສຸດ SPF50+ PA++++ ຄຸມມັນໄດ້ດີ ບໍ່ເປັນຄາບຂາວ ແລະ ບໍ່ອຸດຕັນຮູຂຸມຂົນເລີຍເຈົ້າ.\n\n` +
+            `ທ່ານມັກກັນແດດແບບຄຸມມັນສະບາຍຜິວ ຫຼື ແບບໃຫ້ງານຜິວ Glow ສຸຂະພາບດີ ບອກນ້ອງໄດ້ເດີເຈົ້າ 😊`,
+          productIds: [p.id]
+        };
+      }
+
+      // 6. CLEANSING, FACE WASH, BALM
+      if (q.includes("ລ້າງໜ້າ") || q.includes("ຄລີນຊິ່ງ") || q.includes("ໂຟມ") || q.includes("ຄລີນເຊີ") || q.includes("ບາມ") || q.includes("cleanse") || q.includes("foam") || q.includes("wash") || q.includes("balm")) {
+        const isBalm = q.includes("ບາມ") || q.includes("ເມຄອັບ") || q.includes("balm") || q.includes("makeup remover");
+        const pid = isBalm ? 15 : 13;
+        const p = PRODUCTS.find(x => x.id === pid) || PRODUCTS[12];
+        return {
+          text: `ສະບາຍດີເຈົ້າ! 🙏 ການເລືອກຜະລິດຕະພັນລ້າງໜ້າທີ່ຖືກຕ້ອງ ຄືພື້ນຖານຂອງຜິວສຸຂະພາບດີເລີຍເຈົ້າ.\n\n` +
+            `💡 **ເຄັດລັບການທຳຄວາມສະອາດຜິວ:**\n` +
+            `* **Double Cleansing ໃນຕອນແລງ:** ຫາກທ່ານທາກັນແດດ ຫຼື ແຕ່ງໜ້າ ຄວນໃຊ້ຄລີນຊິ່ງບາມ/ອອຍລ໌ກ່ອນ ແລ້ວຕາມດ້ວຍໂຟມລ້າງໜ້າ.\n` +
+            `* **ເລືອກຄລີນເຊີທີ່ມີຄ່າ pH ສົມດຸນ (~5.5):** ເພື່ອຮັກສາເກາະປ້ອງກັນຜິວບໍ່ໃຫ້ຖືກທຳລາຍ.\n` +
+            `* **ຫຼີກລ່ຽງການລ້າງໜ້າຫຼາຍກວ່າ 2 ຄັ້ງຕໍ່ມື້:** ເພາະຈະເຮັດໃຫ້ຜິວສູນເສຍຄວາມຊຸ່ມຊື່ນ.\n\n` +
+            `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳ:**\n` +
+            `ຂໍແນະນຳ [PRODUCT:${p.id}] **${p.name}** ເຊິ່ງຊ່ວຍທຳຄວາມສະອາດຜິວໄດ້ຢ່າງໝົດຈົດ ລ້າງສິ່ງສົກກະປົກ ແລະ ນ້ຳມັນສ່ວນເກີນ ໂດຍບໍ່ເຮັດໃຫ້ຜິວແຫ້ງຕຶງຫຼັງລ້າງເຈົ້າ.\n\n` +
+            `ປົກກະຕິທ່ານແຕ່ງໜ້າ ຫຼື ທາກັນແດດເປັນປະຈຳບໍ່ເຈົ້າ?`,
+          productIds: [p.id]
+        };
+      }
+
+      // 7. MAKEUP & COSMETICS
+      if (q.includes("ແຕ່ງໜ້າ") || q.includes("ລິບ") || q.includes("ທາປາກ") || q.includes("ຄຸຊຊັ່ນ") || q.includes("ແປ້ງ") || q.includes("ຂົນຕາ") || q.includes("makeup") || q.includes("lip") || q.includes("cushion") || q.includes("powder")) {
+        const isLip = q.includes("ລິບ") || q.includes("ທາປາກ") || q.includes("lip");
+        const pid = isLip ? 18 : 19;
+        const p = PRODUCTS.find(x => x.id === pid) || PRODUCTS[17];
+        return {
+          text: `ສະບາຍດີເຈົ້າ! 🙏 ສຳລັບສາຍເມຄອັບ ຄວາມງາມ ແລະ ການແຕ່ງໜ້າ MUANJAI BEAUTY ມີໄອເທັມຍອດຮິດໃຫ້ເລືອກຫຼາກຫຼາຍເລີຍເຈົ້າ.\n\n` +
+            `💡 **ເຄັດລັບແຕ່ງໜ້າໃຫ້ຕິດທົນ ແລະ ຜິວສວຍ:**\n` +
+            `* **ກຽມຜິວໃຫ້ຊຸ່ມຊື່ນກ່ອນແຕ່ງ (Skin Prep):** ລົງເຊຣັ່ມເຕີມນ້ຳ ແລະ ກັນແດດເນື້ອເບົາ ເພື່ອໃຫ້ຮອງພື້ນຫຼືຄຸຊຊັ່ນຕິດແໜ້ນ ບໍ່ເປັນຄາບ.\n` +
+            `* **ເລືອກເນື້ອທີ່ເໝາະກັບສະພາບອາກາດ:** ເນັ້ນເນື້ອທີ່ບາງເບົາ ແຕ່ໃຫ້ງານຜິວ Glow ສຸຂະພາບດີ.\n\n` +
+            `✨ **ໄອເທັມຍອດນິຍົມທີ່ນ້ອງແນະນຳ:**\n` +
+            `ຂໍແນະນຳ [PRODUCT:${p.id}] **${p.name}** ເຊິ່ງໃຫ້ສີສັນສວຍສົດໃສ ຕິດທົນນານ ແລະ ເປັນສິນຄ້າຂາຍດີອັນດັບຕົ້ນໆຂອງຮ້ານເລີຍເຈົ້າ.\n\n` +
+            `ທ່ານມັກໂທນສີ ຫຼື ລຸກແບບໃດເປັນພິເສດ ບອກນ້ອງໄດ້ເດີເຈົ້າ 💖`,
+          productIds: [p.id]
+        };
+      }
+
+      // 8. PERFUME & FRAGRANCES
+      if (q.includes("ນ້ຳຫອມ") || q.includes("ກິ່ນ") || q.includes("perfume") || q.includes("fragrance") || q.includes("cologne")) {
+        const isMen = q.includes("ຜູ້ຊາຍ") || q.includes("sauvage") || q.includes("men");
+        const pid = isMen ? 23 : 21;
+        const p = PRODUCTS.find(x => x.id === pid) || PRODUCTS[20];
+        return {
+          text: `ສະບາຍດີເຈົ້າ! 🙏 ຍິນດີຕ້ອນຮັບສູ່ໂຊນນ້ຳຫອມແທ້ Counter Brand ຂອງ MUANJAI BEAUTY ເຈົ້າ.\n\n` +
+            `💡 **ເຄັດລັບສີດນ້ຳຫອມໃຫ້ຕິດທົນຕະຫຼອດມື້:**\n` +
+            `* **ສີດຕາມຈຸດຊີບພະຈອນ:** ເຊັ່ນ ຂໍ້ມື, ຂໍ້ພັບແຂນ, ແລະ ສອງຂ້າງລຳຄໍ ບ່ອນທີ່ມີຄວາມອຸ່ນຂອງຮ່າງກາຍ.\n` +
+            `* **ຫ້າມຖູຂໍ້ມືເຂົ້າກັນ:** ເພາະຈະເຮັດໃຫ້ໂມເລກຸນນ້ຳຫອມແຕກ ແລະ ກິ່ນ Top Notes ປ່ຽນໄປ.\n` +
+            `* **ທາໂລຊັ່ນບໍ່ມີກິ່ນກ່ອນສີດ:** ຜິວທີ່ຊຸ່ມຊື່ນຈະຊ່ວຍກັກເກັບກິ່ນຫອມໄດ້ດົນກວ່າຜິວແຫ້ງ.\n\n` +
+            `✨ **ກິ່ນຍອດນິຍົມທີ່ນ້ອງແນະນຳ:**\n` +
+            `ຂໍແນະນຳ [PRODUCT:${p.id}] **${p.name}** ກິ່ນຫອມຫຼູຫຼາ ມີສະເໜ່ ໂດດເດັ່ນ ແລະ ຕິດທົນນານເຖິງ 8-12 ຊົ່ວໂມງເຈົ້າ.\n\n` +
+            `ທ່ານມັກກິ່ນໂທນດອກໄມ້ຫວານໆ, ສົດຊື່ນ ຫຼື ໂທນ Woody ອົບອຸ່ນເຈົ້າ?`,
+          productIds: [p.id]
+        };
+      }
+
+      // 9. PORES & BLACKHEADS
+      if (q.includes("ຮູຂຸມຂົນ") || q.includes("ສິວສ້ຽນ") || q.includes("ສິວຫົວຂາວ") || q.includes("pore") || q.includes("blackhead")) {
+        return {
+          text: `ສະບາຍດີເຈົ້າ! 🙏 ສຳລັບບັນຫາຮູຂຸມຂົນກວ້າງ ແລະ ສິວສ້ຽນອຸດຕັນ ນ້ອງເຂົ້າໃຈເລີຍເຈົ້າ ເຮັດໃຫ້ຜິວເບິ່ງບໍ່ລຽບນຽນ.\n\n` +
+            `💡 **ສາເຫດ & ເຄັດລັບການດູແລ:**\n` +
+            `ຮູຂຸມຂົນກວ້າງ ແລະ ສິວສ້ຽນ ເກີດຈາກຕ່ອມໄຂມັນຜະລິດຊີບັ້ມ (Sebum) ອອກມາຫຼາຍ ແລະ ປະສົມກັບສິ່ງສົກກະປົກຕົກຄ້າງໃນຮູຂຸມຂົນ.\n` +
+            `* **ດູແລດ້ວຍ Double Cleansing:** ໃຊ້ຄລີນຊິ່ງບາມ ຫຼື ອອຍລ໌ນວດຜິວກ່ອນລ້າງໜ້າ ເພື່ອລະລາຍໄຂມັນອຸດຕັນ.\n` +
+            `* **ລ້າງໜ້າໃຫ້ຖືກວິທີ:** ຕີຟອງໂຟມໃຫ້ນຸ່ມ ແລ້ວນວດເປັນວົງກົມບໍລິເວນ T-Zone ປະມານ 60 ວິນາທີ.\n` +
+            `* **ຫຼີກລ່ຽງການບີບສິວສ້ຽນ:** ການໃຊ້ແຜ່ນດຶງ ຫຼື ບີບແຮງຈະເຮັດໃຫ້ຮູຂຸມຂົນຍິ່ງກວ້າງຂຶ້ນ.\n\n` +
+            `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳ:**\n` +
+            `ຂໍແນະນຳ [PRODUCT:14] **Anua Heartleaf Quercetinol Pore Deep Cleansing Foam** ເຊິ່ງມີສານສະກັດ Heartleaf ແລະ ຜົງ Quercetinol ຊ່ວຍທຳຄວາມສະອາດຮູຂຸມຂົນໄດ້ເລິກເຖິງຕົ້ນຕໍ ໂດຍບໍ່ເຮັດໃຫ້ຜິວແຫ້ງຕຶງເຈົ້າ.\n\n` +
+            `ຕອນແລງທ່ານໄດ້ໃຊ້ຄລີນຊິ່ງບາມລ້າງກ່ອນແລ້ວບໍ່ເຈົ້າ? ຖ້າສົນໃຈນ້ອງພ້ອມແນະນຳຄູ່ກັນເດີເຈົ້າ 😊`,
+          productIds: [14]
+        };
+      }
+
+      // 10. ACNE TREATMENT & INFLAMMATION
+      if (q.includes("ສິວອັກເສບ") || q.includes("ສິວຫົວໜອງ") || q.includes("ແຕ້ມສິວ") || q.includes("ສິວເມັດໃຫຍ່") || q.includes("breakout")) {
+        return {
+          text: `ສະບາຍດີເຈົ້າ! 🙏 ນ້ອງເຂົ້າໃຈຄວາມກັງວົນໃຈເລີຍເຈົ້າ ເວລາສິວອັກເສບຂຶ້ນມາ ມັກຈະເຈັບ ແລະ ເຮັດໃຫ້ບໍ່ໝັ້ນໃຈ.\n\n` +
+            `💡 **ສາເຫດ & ເຄັດລັບການດູແລ:**\n` +
+            `ສິວອັກເສບເກີດຈາກເຊື້ອແບັກທີເຣຍ C.acnes ຈະເລີນເຕີບໂຕໃນຮູຂຸມຂົນທີ່ອຸດຕັນ ຈົນເກີດປະຕິກິລິຍາອັກເສບແດງ.\n` +
+            `* **ຫ້າມບີບ ຫຼື ແກະເດັດຂາດ:** ການບີບຈະເຮັດໃຫ້ເຊື້ອແບັກທີເຣຍແຜ່ລາມ ແລະ ເຮັດໃຫ້ເກີດຮອຍແປວເປັນເລິກ.\n` +
+            `* **ປ່ຽນປອກໝອນທຸກໆ 1-2 ອາທິດ:** ເພື່ອຫຼຸດການສະສົມຂອງແບັກທີເຣຍທີ່ສຳຜັດກັບໃບໜ້າ.\n` +
+            `* **ໃຊ້ສານຜັດເຊວອ່ອນໂຍນ LHA / Niacinamide:** ເພື່ອຫຼຸດການອັກເສບໂດຍບໍ່ທຳລາຍຜິວ.\n\n` +
+            `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳ:**\n` +
+            `ນ້ອງຂໍແນະນຳ [PRODUCT:6] **La Roche-Posay Effaclar Duo+M** ເຊິ່ງເປັນຄຣີມດູແລສິວອັນດັບ 1 ຊ່ວຍຢຸດການອັກເສບຂອງສິວພາຍໃນ 8 ຊົ່ວໂມງ ແລະ ປ້ອງກັນບໍ່ໃຫ້ເກີດຮອຍດຳຫຼັງສິວຫາຍເຈົ້າ.\n\n` +
+            `ທ່ານມີໂທນເນີ ຫຼື ເຊຣັ່ມປອບປະໂລມຜິວໃຊ້ຮ່ວມນຳແລ້ວບໍ່ເຈົ້າ?`,
+          productIds: [6]
+        };
+      }
+
+      // 11. DARK SPOTS, BLEMISHES, MELASMA & BRIGHTENING
+      if (q.includes("ຮອຍດຳ") || q.includes("ຮອຍແດງ") || q.includes("ຮອຍສິວ") || q.includes("ຝ້າ") || q.includes("ກະ") || q.includes("ໝອງຄ້ຳ") || q.includes("ບໍ່ໃສ") || q.includes("ຢາກຂາວ") || q.includes("ຂາວໃສ") || q.includes("dark spot") || q.includes("bright") || q.includes("dull")) {
+        return {
+          text: `ສະບາຍດີເຈົ້າ! 🙏 ບັນຫາຮອຍດຳ-ຮອຍແດງຈາກສິວ ຫຼື ຜິວໝອງຄ້ຳບໍ່ສະໝ່ຳສະເໝີ ນ້ອງເຂົ້າໃຈດີເລີຍເຈົ້າ ຕ້ອງໃຊ້ຄວາມອົດທົນ ແລະ ວິທີທີ່ຖືກຕ້ອງ.\n\n` +
+            `💡 **ສາເຫດ & ເຄັດລັບການດູແລ:**\n` +
+            `ຮອຍດຳເກີດຈາກເມັດສີເມລານິນຖືກຜະລິດຫຼາຍເກີນໄປຫຼັງເກີດການອັກເສບ (PIH) ຫຼື ຖືກລັງສີ UV ກະຕຸ້ນ.\n` +
+            `* **ທາກັນແດດທຸກໆມື້:** ເປັນສິ່ງສຳຄັນທີ່ສຸດ ເພາະແສງແດດຈະຍິ່ງເຮັດໃຫ້ຮອຍດຳເຂັ້ມຂຶ້ນ ແລະ ຫາຍຍາກ.\n` +
+            `* **ເລືອກສານກຸ່ມ Niacinamide & Hya:** ຊ່ວຍຢັບຢັ້ງການສົ່ງເມັດສີຂຶ້ນສູ່ຜິວຊັ້ນເທິງ ພ້ອມເຕີມຄວາມຊຸ່ມຊື່ນ.\n` +
+            `* **ຫ້າມແກະ ຫຼື ຂັດຜິວແຮງ:** ເພາະຈະເຮັດໃຫ້ຜິວເກີດການອັກເສບຊ້ຳຊ້ອນ.\n\n` +
+            `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳ:**\n` +
+            `ນ້ອງຂໍແນະນຳ [PRODUCT:4] **Clear Nose Dark Spot Bright Solution Serum** ເຊິ່ງມີ Niacinamide ເຂັ້ມຂຸ້ນ ຊ່ວຍຫຼຸດເລືອນຮອຍດຳ, ຮອຍສິວ, ແລະ ຝ້າແດດໃຫ້ຈາງລົງຢ່າງເຫັນໄດ້ຊັດເຈນ ໂດຍບໍ່ກັດຜິວເຈົ້າ.\n\n` +
+            `ຮອຍສິວຂອງທ່ານເປັນຮອຍໃໝ່ ຫຼື ເປັນມາດົນແລ້ວເຈົ້າ? ບອກນ້ອງໄດ້ເດີເຈົ້າ 😊`,
+          productIds: [4]
+        };
+      }
+
+      // 12. GENERAL ACNE & CLOGGED PORES
+      if (q.includes("ສິວ") || q.includes("ອຸດຕັນ") || q.includes("acne") || q.includes("pimple") || q.includes("ຜິວມັນ")) {
+        return {
+          text: `ສະບາຍດີເຈົ້າ! 🙏 ນ້ອງເຂົ້າໃຈເລີຍເຈົ້າ ບັນຫາສິວ ແລະ ຜິວມັນອຸດຕັນ ອາດຈະເຮັດໃຫ້ຮູ້ສຶກກັງວົນໃຈ ແລະ ບໍ່ສະບາຍຜິວ.\n\n` +
+            `💡 **ສາເຫດ & ເຄັດລັບການດູແລ:**\n` +
+            `ສິວມັກເກີດຈາກນ້ຳມັນສ່ວນເກີນສະສົມຮ່ວມກັບເຊວຜິວເກົ່າ. ການຮັກສາທີ່ຖືກຕ້ອງບໍ່ແມ່ນການລ້າງໜ້າໃຫ້ແຫ້ງຕຶງ ແຕ່ແມ່ນການ **ປອບປະໂລມ ແລະ ປັບສະພາບຜິວໃຫ້ສົມດຸນ**.\n` +
+            `* **ຫຼີກລ່ຽງການຂັດຖູໜ້າແຮງ:** ຈະຍິ່ງກະຕຸ້ນໃຫ້ຕ່ອມໄຂມັນຜະລິດນ້ຳມັນອອກມາຫຼາຍກວ່າເກົ່າ.\n` +
+            `* **ເລືອກສານສະກັດ Heartleaf (ຜັກຄາວທອງ):** ຊ່ວຍຫຼຸດເຊື້ອແບັກທີເຣຍ ແລະ ປອບປະໂລມຮອຍແດງຢ່າງອ່ອນໂຍນ.\n` +
+            `* **ຮັກສາຄວາມຊຸ່ມຊື່ນສະເໝີ:** ເພາະຖ້າຜິວຂາດນ້ຳ ຜິວຈະຍິ່ງຜະລິດນ້ຳມັນອອກມາຊົດເຊີຍ.\n\n` +
+            `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳ:**\n` +
+            `ສຳລັບຂັ້ນຕອນພື້ນຖານທີ່ສຳຄັນທີ່ສຸດ ຂໍແນະນຳ [PRODUCT:1] **Anua Heartleaf 77% Soothing Toner** ເຊິ່ງມີສານສະກັດຜັກຄາວທອງສູງເຖິງ 77% ຊ່ວຍປອບປະໂລມຜິວເປັນສິວ ແລະ ປັບສະພາບຜິວໃຫ້ແຂງແຮງເຈົ້າ.\n\n` +
+            `ທ່ານຢາກໃຫ້ນ້ອງແນະນຳໂຟມລ້າງໜ້າ ຫຼື ຄຣີມກັນແດດທີ່ບໍ່ອຸດຕັນຮ່ວມນຳບໍ່ເຈົ້າ? ບອກນ້ອງໄດ້ເດີເຈົ້າ 😊`,
+          productIds: [1]
+        };
+      }
+
+      // 13. DRY SKIN & DEHYDRATION
+      if (q.includes("ແຫ້ງ") || q.includes("ຂາດນ້ຳ") || q.includes("ລອກ") || q.includes("ຕຶງ") || q.includes("ແຕກ") || q.includes("dry") || q.includes("dehydrate")) {
+        return {
+          text: `ສະບາຍດີເຈົ້າ! 🙏 ສຳລັບບັນຫາຜິວໜ້າແຫ້ງ, ຂາດນ້ຳ ຫຼື ລອກເປັນຂຸ່ຍ ນ້ອງເຂົ້າໃຈເລີຍເຈົ້າ ເຮັດໃຫ້ຜິວຕຶງ ແລະ ແຕ່ງໜ້າບໍ່ຕິດ.\n\n` +
+            `💡 **ສາເຫດ & ເຄັດລັບການດູແລ:**\n` +
+            `ພາວະຜິວຂາດນ້ຳ ເກີດຈາກເກາະປ້ອງກັນຜິວ (Skin Barrier) ສູນເສຍຄວາມຊຸ່ມຊື່ນ ແລະ ນ້ຳໃຕ້ຜິວລະເຫີຍອອກໄວ.\n` +
+            `* **ເຕີມນ້ຳທັນທີຫຼັງລ້າງໜ້າ (ກົດ 3 ນາທີ):** ລົງເຊຣັ່ມ ຫຼື ໂທນເນີຂະນະທີ່ຜິວຍັງຊຸ່ມນ້ຳຢູ່ ເພື່ອໃຫ້ສານບຳລຸງດູດຊຶມດີທີ່ສຸດ.\n` +
+            `* **ຫຼີກລ່ຽງການລ້າງໜ້າດ້ວຍນ້ຳອຸ່ນເກີນໄປ:** ເພາະນ້ຳອຸ່ນຈະລ້າງນ້ຳມັນຕາມທຳມະຊາດອອກຈົນຜິວຍິ່ງແຫ້ງ.\n` +
+            `* **ດື່ມນ້ຳສະອາດມື້ລະ 1.5 - 2 ລິດ:** ເພື່ອຊ່ວຍເຕີມຄວາມຊຸ່ມຊື່ນຈາກພາຍໃນສູ່ພາຍນອກ.\n\n` +
+            `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳ:**\n` +
+            `ນ້ອງຂໍແນະນຳ [PRODUCT:3] **Torriden Dive-In Low Molecular Hyaluronic Serum** ເຊິ່ງມີ 5D Multi-Hyaluronic Acid ໂມເລກຸນນ້ອຍ ຊຶມເລິກລົງສູ່ຊັ້ນຜິວ ເຕີມນ້ຳໃຫ້ຜິວອີ່ມຟູເດັ້ງທັນທີ ໂດຍບໍ່ໜຽວໜຽະເຈົ້າ.\n\n` +
+            `ຕອນນີ້ທ່ານມີມອຍສເຈີໄຣເຊີລັອກຄວາມຊຸ່ມຊື່ນໃຊ້ຄູ່ກັນແລ້ວບໍ່ເຈົ້າ? ຖ້າຍັງບໍ່ມີ ບອກນ້ອງໄດ້ເດີເຈົ້າ!`,
+          productIds: [3]
+        };
+      }
+
+      // 14. SENSITIVE SKIN & BARRIER REPAIR
+      if (q.includes("ແພ້ງ່າຍ") || q.includes("ແດງ") || q.includes("ແສບ") || q.includes("ຄັນ") || q.includes("ລະຄາຍເຄືອງ") || q.includes("ບອບບາງ") || q.includes("sensitive") || q.includes("barrier")) {
+        return {
+          text: `ສະບາຍດີເຈົ້າ! 🙏 ຜິວແພ້ງ່າຍ ແລະ ລະຄາຍເຄືອງງ່າຍ ຕ້ອງໄດ້ຮັບການດູແລທີ່ອ່ອນໂຍນເປັນພິເສດເລີຍເຈົ້າ.\n\n` +
+            `💡 **ສາເຫດ & ເຄັດລັບການດູແລ:**\n` +
+            `ເມື່ອເກາະປ້ອງກັນຜິວ (Skin Barrier) ອ່ອນແອລົງ ຜິວຈະໄວຕໍ່ມົນລະພິດ, ແສງແດດ, ຫຼື ສານເຄມີ ຈົນເກີດອາການແດງ ແລະ ແສບງ່າຍ.\n` +
+            `* **ຫຼຸດຂັ້ນຕອນທີ່ບໍ່ຈຳເປັນ (Skinimalism):** ພັກຜິວຈາກສານຜັດເຊວເຂັ້ມຂຸ້ນ (AHA/BHA) ແລະ ເນັ້ນສະເພາະຂັ້ນຕອນຟື້ນຟູ.\n` +
+            `* **ເລືອກສູດປາສະຈາກນ້ຳຫອມ & ແອວກໍຮໍ:** ເພື່ອຫຼຸດຄວາມສ່ຽງໃນການເກີດອາການແພ້.\n` +
+            `* **ເສີມດ້ວຍ Centella Asiatica (ໃບບົວກົກ):** ຊ່ວຍປອບປະໂລມ ແລະ ເສີມເກາະປ້ອງກັນຜິວໃຫ້ແຂງແຮງ.\n\n` +
+            `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳ:**\n` +
+            `ນ້ອງຂໍແນະນຳ [PRODUCT:2] **Skin1004 Madagascar Centella Ampoule** ສານສະກັດໃບບົວກົກ 100% ຈາກມາດາກັສກາ ຊ່ວຍຟື້ນຟູຜິວໃຫ້ກັບມາແຂງແຮງ, ຫຼຸດຮອຍແດງ ແລະ ລະຄາຍເຄືອງຢ່າງອ່ອນໂຍນທີ່ສຸດເຈົ້າ.\n\n` +
+            `ທ່ານຢາກປຶກສາຂັ້ນຕອນການລ້າງໜ້າ ຫຼື ຄຣີມກັນແດດສຳລັບຜິວແພ້ງ່າຍເພີ່ມເຕີມບໍ່ເຈົ້າ?`,
+          productIds: [2]
+        };
+      }
+
+      // 15. ANTI-AGING, WRINKLES, FIRMNESS, LUXURY
+      if (q.includes("ລິ້ວຮອຍ") || q.includes("ຍົ່ນ") || q.includes("ແກ່") || q.includes("ຕຶງ") || q.includes("ຢ່ອນຍານ") || q.includes("aging") || q.includes("wrinkle") || q.includes("firm") || q.includes("pitera")) {
+        return {
+          text: `ສະບາຍດີເຈົ້າ! 🙏 ສຳລັບການດູແລລິ້ວຮອຍ ແລະ ເສີມຄວາມຍືດຫຍຸ່ນໃຫ້ຜິວອ່ອນເຍົາ ນ້ອງເຂົ້າໃຈເລີຍເຈົ້າ ຍິ່ງເລີ່ມໄວ ຍິ່ງຮັກສາຜິວໃຫ້ເດັ້ງຟູໄດ້ດົນ.\n\n` +
+            `💡 **ສາເຫດ & ເຄັດລັບການດູແລ:**\n` +
+            `ເມື່ອອາຍຸເພີ່ມຂຶ້ນ ຂະບວນການສ້າງຄໍລາເຈນ ແລະ ອິລາສຕິນຈະຫຼຸດລົງ ປະສົມກັບການສູນເສຍຄວາມຊຸ່ມຊື່ນ.\n` +
+            `* **ເນັ້ນເຕີມນ້ຳໃຫ້ຜິວຕະຫຼອດເວລາ:** ຜິວທີ່ອີ່ມນ້ຳຈະຊ່ວຍໃຫ້ຮ່ອງລິ້ວຮອຍຕື້ນຂຶ້ນ ແລະ ເບິ່ງລຽບນຽນ.\n` +
+            `* **ທາກັນແດດທຸກໆມື້:** ແສງແດດຄືສັດຕູອັນດັບ 1 ທີ່ທຳລາຍຄໍລາເຈນໃຕ້ຜິວ.\n` +
+            `* **ນວດໜ້າຂຶ້ນດ້ານເທິງ:** ເວລາທາຄຣີມ ໃຫ້ນວດຍົກກະຊັບຂຶ້ນຕາມແນວຂາກັນໄກ ແລະ ໜ້າຜາກ.\n\n` +
+            `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳ:**\n` +
+            `ຂໍແນະນຳ [PRODUCT:31] **SK-II Facial Treatment Essence (Pitera Water)** ນ້ຳຕົບລະດັບຕຳນານທີ່ມີ Pitera ຫຼາຍກວ່າ 90% ຊ່ວຍຜັດເຊວຜິວຢ່າງອ່ອນໂຍນ ຟື້ນຟູຜິວໃຫ້ກະຈ່າງໃສ, ກະຊັບ, ແລະ ອ່ອນເຍົາແບບ Crystal Clear Skin ເຈົ້າ.\n\n` +
+            `ທ່ານຢາກໃຫ້ແນະນຳເຊຣັ່ມໄຮຢາລູຣອນເຂັ້ມຂຸ້ນຄູ່ກັນບໍ່ເຈົ້າ?`,
+          productIds: [31]
+        };
+      }
+
+      // 16. STORE BRANCHES & SHIPPING
+      if (q.includes("ສາຂາ") || q.includes("ຮ້ານຢູ່ໃສ") || q.includes("ຕັ້ງຢູ່ໃສ") || q.includes("ສົ່ງ") || q.includes("ຄ່າສົ່ງ") || q.includes("store") || q.includes("branch") || q.includes("location") || q.includes("deliver")) {
+        return {
+          text: `ສະບາຍດີເຈົ້າ! 🙏 ຮ້ານ **MUANJAI BEAUTY** ມີທັງໝົດ 5 ສາຂາທົ່ວນະຄອນຫຼວງວຽງຈັນ ພ້ອມໃຫ້ບໍລິການເຈົ້າ:\n\n` +
+            `🏢 **ສາຂາຂອງພວກເຮົາ:**\n` +
+            `1. **ສາຂາ Parkson Lao Mall (Flagship):** ຊັ້ນ 1 ໂຊນ Beauty (08:00 - 21:00)\n` +
+            `2. **ສາຂາ ດົງໂດກ (Dongdok NUOL):** ທາງເຂົ້າຫຼັກ ມຊ (08:00 - 21:00)\n` +
+            `3. **ສາຂາ ໄອເຕັກມໍ (ITECC Mall):** ຊັ້ນ 2 ໂຊນແຟຊັ່ນ (10:00 - 20:00)\n` +
+            `4. **ສາຂາ ສີໄຄ - ສີບຸນເຮືອງ:** ຕິດຖະໜົນໃຫຍ່ (08:00 - 20:00)\n` +
+            `5. **ສາຂາ ຈອມມະນີ:** ໄກ່ສອນ ພົມວິຫານ (08:00 - 21:00)\n\n` +
+            `🚚 **ການຈັດສົ່ງສິນຄ້າ:**\n` +
+            `* ສົ່ງດ່ວນເຖິງບ້ານໃນນະຄອນຫຼວງວຽງຈັນ (ຟຣີເມື່ອຊື້ຄົບ 350,000 ກີບ)\n` +
+            `* ຈັດສົ່ງທຸກແຂວງທົ່ວປະເທດລາວ ຜ່ານຂົນສົ່ງຮຸ່ງອາລຸນ / ອານຸສິດ ພາຍໃນ 1-2 ມື້ເຈົ້າ.\n\n` +
+            `ທ່ານສະດວກໄປສາຂາໃດ ຫຼື ຢາກສັ່ງຊື້ອອນໄລນ໌ ບອກນ້ອງໄດ້ເລີຍເດີເຈົ້າ 😊`,
+          productIds: []
+        };
+      }
+
+      // 17. BUDGET & PRICE
+      if (q.includes("ງົບ") || q.includes("ລາຄາ") || q.includes("ຖືກ") || q.includes("ບໍ່ແພງ") || q.includes("budget") || q.includes("price")) {
+        return {
+          text: `ສະບາຍດີເຈົ້າ! 🙏 ນ້ອງຍິນດີຊ່ວຍຈັດເຊັດສະກິນແຄຣ໌ໃຫ້ຄຸ້ມຄ່າ ແລະ ຕົງກັບງົບປະມານຂອງທ່ານທີ່ສຸດເລີຍເຈົ້າ.\n\n` +
+            `💡 **ຫຼັກການຈັດສະກິນແຄຣ໌ແບບຄຸ້ມຄ່າ:**\n` +
+            `ບໍ່ຈຳເປັນຕ້ອງໃຊ້ຫຼາຍຕົວ ຫຼື ລາຄາແພງເກີນໄປ! ຫົວໃຈສຳຄັນແມ່ນການເລືອກ **Hero Item ພຽງ 1 ຕົວ** ທີ່ຕົງກັບບັນຫາຜິວທີ່ສຸດ ເພື່ອໃຫ້ເຫັນຜົນຊັດເຈນ ແລະ ປະຢັດງົບ.\n\n` +
+            `✨ **ສິນຄ້າຄຸນນະພາບສູງ ລາຄາສະບາຍກະເປົາທີ່ນ້ອງແນະນຳ:**\n` +
+            `ຂໍແນະນຳ [PRODUCT:4] **Clear Nose Dark Spot Bright Solution Serum** ລາຄາພຽງ 265,000 LAK ແຕ່ໃຫ້ປະສິດທິພາບສູງທຽບເທົ່າເຄົາເຕີແບຣນ ຊ່ວຍທັງເລື່ອງຮອຍສິວ ແລະ ຜິວກະຈ່າງໃສເຈົ້າ.\n\n` +
+            `ທ່ານມີງົບປະມານເທົ່າໃດ ແລະ ຢາກເນັ້ນແກ້ໄຂບັນຫາໃດ ບອກນ້ອງໄດ້ເດີເຈົ້າ 😊`,
+          productIds: [4]
+        };
+      }
+
+      // 18. OFF-TOPIC GUARDRAIL
+      if (q.includes("ການເມືອງ") || q.includes("ຫວຍ") || q.includes("ເລກ") || q.includes("ບານ") || q.includes("ຂ່າວ") || q.includes("crypto") || q.includes("bitcoin")) {
+        return {
+          text: `ສະບາຍດີເຈົ້າ! 🙏 ນ້ອງແມ່ນ **Muanjai AI Beauty Advisor** ທີ່ປຶກສາສະເພາະດ້ານຜິວພັນ, ຄວາມງາມ ແລະ ເຄື່ອງສຳອາງປະຈຳຮ້ານ MUANJAI BEAUTY ເທົ່ານັ້ນເຈົ້າ.\n\n` +
+            `ນ້ອງຂໍອະນຸຍາດບໍ່ຕອບຄຳຖາມນອກເໜືອຈາກເລື່ອງຄວາມງາມເດີເຈົ້າ ✨ ຫາກທ່ານມີບັນຫາຜິວໜ້າ, ຢາກໄດ້ຄຣີມກັນແດດ, ເຊຣັ່ມ ຫຼື ໂທນເນີດີໆ ຖາມນ້ອງໄດ້ທຸກເມື່ອເລີຍເດີເຈົ້າ 😊`,
+          productIds: []
+        };
+      }
+
+      // 19. BALANCED GENERAL FALLBACK (Soft-Consultant)
+      return {
+        text: `ສະບາຍດີເຈົ້າ! 🙏 ສຳລັບການເລີ່ມຕົ້ນດູແລຜິວໜ້າໃຫ້ມີສຸຂະພາບດີ ແລະ ແຂງແຮງ ຫົວໃຈສຳຄັນແມ່ນການເລືອກຂັ້ນຕອນພື້ນຖານທີ່ອ່ອນໂຍນຕໍ່ຜິວເຈົ້າ.\n\n` +
+          `💡 **ເຄັດລັບດູແລຜິວພື້ນຖານ (Basic Skincare):**\n` +
+          `* **ລ້າງໜ້າອ່ອນໂຍນ:** ບໍ່ຄວນລ້າງຈົນຜິວແຫ້ງຕຶງ ເພື່ອຮັກສາຄວາມຊຸ່ມຊື່ນຕາມທຳມະຊາດ.\n` +
+          `* **ປອບປະໂລມຜິວຫຼັງລ້າງ:** ໃຊ້ໂທນເນີທີ່ບໍ່ມີແອວກໍຮໍ ເພື່ອປັບຄ່າ pH ແລະ ປອບປະໂລມຜິວ.\n` +
+          `* **ປົກປ້ອງຜິວຈາກແສງແດດ:** ທາກັນແດດເປັນປະຈຳທຸກໆເຊົ້າ.\n\n` +
+          `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳສຳລັບທຸກສະພາບຜິວ:**\n` +
+          `ຂໍແນະນຳ [PRODUCT:1] **Anua Heartleaf 77% Soothing Toner** ເຊິ່ງເປັນໂທນເນີອັນດັບ 1 ທີ່ຊ່ວຍປອບປະໂລມ, ຫຼຸດຮອຍແດງ ແລະ ປັບສະພາບຜິວໃຫ້ພ້ອມຮັບການບຳລຸງເຈົ້າ.\n\n` +
+          `ທ່ານມີບັນຫາຜິວສະເພາະໃດ ເຊັ່ນ ສິວ, ຜິວແຫ້ງ ຫຼື ຮອຍດຳ ບອກນ້ອງເພີ່ມເຕີມໄດ້ເລີຍເດີເຈົ້າ 😊`,
+        productIds: [1]
+      };
     }
 
     // STORES LIST
