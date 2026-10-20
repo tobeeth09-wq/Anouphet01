@@ -974,23 +974,92 @@
     </div>
   </div>
 
-  <!-- INTERACTIVE MODAL: "FIND YOUR SKINCARE" QUIZ -->
-  <div id="modal-quiz" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl relative border border-[#C1992A]/30">
+  <!-- INTERACTIVE MODAL: MUANJAI AI BEAUTY ADVISOR (SKIN QUIZ -> AI CHAT) -->
+  <div id="modal-quiz" class="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-xs hidden opacity-0 transition-opacity duration-300">
+    <div class="w-full max-w-full sm:max-w-lg bg-white sm:rounded-3xl shadow-2xl overflow-hidden border-0 sm:border border-[#DFC68A] flex flex-col h-screen sm:h-[750px] sm:max-h-[94vh] min-w-0 relative">
       
-      <!-- Quiz Header -->
-      <div class="bg-gradient-to-r from-[#1C1917] via-[#292524] to-[#1C1917] text-white p-6 relative">
-        <button onclick="closeModal('modal-quiz')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">✕</button>
-        <div class="flex items-center gap-2 text-xs font-bold text-[#F5E6B8] uppercase tracking-wider mb-1">
-          <span>✨</span> Muanjai Skin Consultation
+      <!-- 1. LIGHT LUXE HEADER (NO DARK BRONZE) -->
+      <div class="w-full bg-white text-stone-900 px-3.5 sm:px-5 py-3.5 flex items-center justify-between border-b border-[#EFE9DB] shadow-xs relative flex-shrink-0 min-w-0">
+        <div class="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1 mr-2">
+          <div class="relative flex-shrink-0">
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-[#D4AF37] via-[#F3E5AB] to-[#C1992A] p-0.5 shadow-sm">
+              <div class="w-full h-full bg-amber-50 rounded-[14px] flex items-center justify-center text-base sm:text-lg">
+                ✨
+              </div>
+            </div>
+            <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white"></span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
+              <h3 class="font-extrabold text-xs sm:text-base text-stone-900 tracking-tight truncate">Muanjai AI Advisor</h3>
+              <span class="text-[8px] sm:text-[9px] px-2 py-0.5 rounded-full bg-amber-50 text-[#8C6D19] font-bold border border-amber-300 flex-shrink-0">AI PRO</span>
+            </div>
+            <p class="text-[10px] sm:text-[11px] text-stone-500 flex items-center gap-1 truncate">
+              <span>ທີ່ປຶກສາຜິວພັນອັດສະລິຍະ</span>
+              <span>•</span>
+              <span class="text-emerald-600 font-bold">24/7 🟢</span>
+            </p>
+          </div>
         </div>
-        <h3 class="text-xl font-bold">Find Your Skincare Routine</h3>
-        <p class="text-xs text-slate-300 mt-1">ຕອບ 3 ຄຳຖາມງ່າຍໆ ເພື່ອໃຫ້ລະບົບແນະນຳເຊັດສະກິນແຄທີ່ກົງກັບຜິວຂອງທ່ານ</p>
+        
+        <!-- Top Actions -->
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <button onclick="resetAiChat()" title="ເລີ່ມຕົ້ນໃໝ່" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 hover:text-stone-900 flex items-center justify-center text-xs transition cursor-pointer">
+            🔄
+          </button>
+          <button onclick="closeModal('modal-quiz')" title="ປິດໜ້າຕ່າງ" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 hover:text-stone-900 flex items-center justify-center text-sm font-bold transition cursor-pointer">
+            ✕
+          </button>
+        </div>
       </div>
 
-      <!-- Quiz Body -->
-      <div class="p-6" id="quiz-body">
+      <!-- 2. SCROLLABLE CHAT MESSAGES AREA -->
+      <div id="ai-chat-messages" class="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 space-y-3 custom-scrollbar bg-[#FDFBF7] w-full min-w-0">
         <!-- Rendered by JS -->
+      </div>
+
+      <!-- 3. FOOTER INPUT & QUICK ACTIONS -->
+      <div class="p-2.5 sm:p-4 bg-white border-t border-[#EFE9DB] space-y-1.5 flex-shrink-0 w-full min-w-0 max-w-full overflow-hidden">
+        
+        <!-- Quick Follow-up suggestions -->
+        <div id="ai-quick-suggestions" class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar py-0.5 text-[10px] w-full min-w-0">
+          <span class="text-stone-400 text-[9px] flex-shrink-0 font-bold whitespace-nowrap">ຖາມຕໍ່:</span>
+          <button onclick="handleQuickChipClick('ວິທີໃຊ້ເຊຣັ່ມທີ່ຖືກຕ້ອງ ແລະ ລຽງລຳດັບແນວໃດ?')" class="flex-shrink-0 px-2.5 py-0.5 rounded-full bg-stone-100 hover:bg-amber-100 text-stone-700 font-semibold transition whitespace-nowrap cursor-pointer">
+            ✨ ວິທີໃຊ້ເຊຣັ່ມທີ່ຖືກຕ້ອງ?
+          </button>
+          <button onclick="handleQuickChipClick('ແນະນຳຄຣີມກັນແດດທີ່ເໝາະກັບຜິວຄູ່ກັນແນ່')" class="flex-shrink-0 px-2.5 py-0.5 rounded-full bg-stone-100 hover:bg-amber-100 text-stone-700 font-semibold transition whitespace-nowrap cursor-pointer">
+            🧴 ແນະນຳຄຣີມກັນແດດຄູ່ກັນ
+          </button>
+        </div>
+
+        <!-- Text Input Bar -->
+        <form onsubmit="event.preventDefault(); submitAiChatMessage();" class="flex items-center gap-2 w-full min-w-0">
+          <div class="flex-1 relative min-w-0">
+            <input 
+              id="ai-chat-input"
+              type="text" 
+              autocomplete="off"
+              placeholder="ພິມບອກສະພາບຜິວ, ບັນຫາ ຫຼື ງົບປະມານ..." 
+              class="w-full pl-3 pr-8 py-2 rounded-2xl bg-stone-50 border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#C1992A] focus:bg-white transition"
+            >
+            <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 text-xs pointer-events-none">
+              💬
+            </span>
+          </div>
+          <button 
+            id="ai-send-btn"
+            type="submit" 
+            class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-r from-[#D4AF37] to-[#C1992A] text-slate-950 font-bold flex items-center justify-center shadow-sm hover:brightness-105 active:scale-95 transition flex-shrink-0 cursor-pointer"
+          >
+            <svg class="w-4 h-4 translate-x-0.5 -translate-y-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          </button>
+        </form>
+
+        <div class="text-center w-full min-w-0">
+          <span class="text-[8px] sm:text-[9px] text-stone-400 block truncate">
+            ✨ ລະບົບ AI ຈະວິເຄາະ ແລະ ແນະນຳສິນຄ້າສະເພາະທີ່ມີໃນຮ້ານ Muanjai Beauty ເທົ່ານັ້ນ
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -2877,162 +2946,411 @@
       closeModal('modal-checkout');
     }
 
-    // QUIZ LOGIC
+    // ==========================================
+    // MUANJAI AI BEAUTY ADVISOR CHATBOT ENGINE
+    // ==========================================
+    const GEMINI_API_KEY = "AQ.Ab8RN6It9AZDy17MJYk6FnCx5oISQbzQZpRhuAKwWNM1XXKIRw";
+    const GEMINI_MODELS = [
+      "gemini-3-flash-preview",
+      "gemini-3.5-flash",
+      "gemini-3.8-flash",
+      "gemini-flash-latest"
+    ];
+
+    let aiChatState = {
+      messages: [],
+      isThinking: false
+    };
+
+    function getAiDefaultWelcome() {
+      return {
+        role: 'assistant',
+        text: 'ສະບາຍດີເຈົ້າ! 🙏 ຍິນດີຕ້ອນຮັບສູ່ **MUANJAI BEAUTY**. ນ້ອງແມ່ນທີ່ປຶກສາຜິວພັນ AI ສ່ວນຕົວຂອງທ່ານ.\nມື້ນີ້ທ່ານມີບັນຫາຜິວໃດຢາກປຶກສາ ຫຼື ຢາກໄດ້ເຊັດສະກິນແຄຣ໌ໃນງົບເທົ່າໃດ ບອກນ້ອງໄດ້ເລີຍເດີເຈົ້າ 👇',
+        chips: [
+          { label: "🔴 ເປັນສິວອັກເສບ", query: "ຂ້ອຍເປັນສິວອັກເສບ ແລະ ສິວອຸດຕັນ ຄວນໃຊ້ສະກິນແຄຣ໌ໂຕໃດດີ?" },
+          { label: "💧 ຜິວແຫ້ງຂາດນ້ຳ", query: "ຜິວໜ້າແຫ້ງຂາດນ້ຳ ມີຮອຍຍົ່ນເລັກນ້ອຍ ແນະນຳເຊຣັ່ມ ຫຼື ມອຍສເຈີໄຣເຊີໃຫ້ແນ່" },
+          { label: "☀️ ກັນແດດຄຸມມັນ", query: "ຢາກໄດ້ຄຣີມກັນແດດຄຸມມັນ ບໍ່ອຸດຕັນ ສຳລັບຜິວໜ້າເຫຼື້ອມງ່າຍ" },
+          { label: "🌸 ຜິວແພ້ງ່າຍ", query: "ຜິວແພ້ງ່າຍ ແດງງ່າຍ ເກາະປ້ອງກັນຜິວອ່ອນແອ ແນະນຳຜະລິດຕະພັນທີ່ອ່ອນໂຍນ" }
+        ],
+        productIds: []
+      };
+    }
+
     function openQuizModal() {
-      state.quizStep = 1;
-      state.quizAnswers = { skinType: '', concern: '', budget: '' };
-      renderQuizStep();
-      openModal('modal-quiz');
-    }
-
-    function renderQuizStep() {
-      const body = document.getElementById('quiz-body');
-
-      if (state.quizStep === 1) {
-        body.innerHTML = `
-          <div class="space-y-4">
-            <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
-              <span>ຄຳຖາມທີ 1 ຈາກ 3</span>
-              <span>33%</span>
-            </div>
-            <h4 class="text-sm sm:text-base font-bold text-slate-900">
-              ສະພາບຜິວໜ້າຂອງທ່ານເປັນແນວໃດ?
-            </h4>
-            
-            <div class="grid grid-cols-2 gap-2.5">
-              <button onclick="selectQuizAnswer('skinType', 'oily')" class="p-3.5 rounded-xl border border-slate-200 hover:border-[#C1992A] hover:bg-amber-50/50 text-left transition font-semibold text-xs">
-                🫒 ຜິວມັນ (Oily)
-                <span class="block text-[10px] text-slate-400 font-normal mt-0.5">ໜ້າເຫຼື້ອມ, ຮູຂຸມຂົນກວ້າງ</span>
-              </button>
-              <button onclick="selectQuizAnswer('skinType', 'dry')" class="p-3.5 rounded-xl border border-slate-200 hover:border-[#C1992A] hover:bg-amber-50/50 text-left transition font-semibold text-xs">
-                🌾 ຜິວແຫ້ງ (Dry)
-                <span class="block text-[10px] text-slate-400 font-normal mt-0.5">ຜິວຕຶງ, ລອກເປັນຂຸ່ຍ</span>
-              </button>
-              <button onclick="selectQuizAnswer('skinType', 'combination')" class="p-3.5 rounded-xl border border-slate-200 hover:border-[#C1992A] hover:bg-amber-50/50 text-left transition font-semibold text-xs">
-                ⚖️ ຜິວປະສົມ (Combination)
-                <span class="block text-[10px] text-slate-400 font-normal mt-0.5">ມັນສະເພາະ T-Zone</span>
-              </button>
-              <button onclick="selectQuizAnswer('skinType', 'sensitive')" class="p-3.5 rounded-xl border border-slate-200 hover:border-[#C1992A] hover:bg-amber-50/50 text-left transition font-semibold text-xs">
-                🌸 ຜິວແພ້ງ່າຍ (Sensitive)
-                <span class="block text-[10px] text-slate-400 font-normal mt-0.5">ແດງງ່າຍ, ຄັນລະຄາຍເຄືອງ</span>
-              </button>
-            </div>
-          </div>
-        `;
-      } else if (state.quizStep === 2) {
-        body.innerHTML = `
-          <div class="space-y-4">
-            <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
-              <span>ຄຳຖາມທີ 2 ຈາກ 3</span>
-              <span>66%</span>
-            </div>
-            <h4 class="text-sm sm:text-base font-bold text-slate-900">
-              ບັນຫາຜິວຫຼັກທີ່ທ່ານກັງວົນທີ່ສຸດໃນຕອນນີ້?
-            </h4>
-            
-            <div class="grid grid-cols-2 gap-2.5">
-              <button onclick="selectQuizAnswer('concern', 'acne')" class="p-3.5 rounded-xl border border-slate-200 hover:border-[#C1992A] hover:bg-amber-50/50 text-left transition font-semibold text-xs">
-                🔴 ສິວອັກເສບ / ສິວອຸດຕັນ
-              </button>
-              <button onclick="selectQuizAnswer('concern', 'darkspots')" class="p-3.5 rounded-xl border border-slate-200 hover:border-[#C1992A] hover:bg-amber-50/50 text-left transition font-semibold text-xs">
-                ☀️ ຝ້າ-ກະ, ຈຸດດ່າງດຳ
-              </button>
-              <button onclick="selectQuizAnswer('concern', 'dryness')" class="p-3.5 rounded-xl border border-slate-200 hover:border-[#C1992A] hover:bg-amber-50/50 text-left transition font-semibold text-xs">
-                💧 ຜິວຂາດນ້ຳ, ບໍ່ເປັ່ງປັ່ງ
-              </button>
-              <button onclick="selectQuizAnswer('concern', 'aging')" class="p-3.5 rounded-xl border border-slate-200 hover:border-[#C1992A] hover:bg-amber-50/50 text-left transition font-semibold text-xs">
-                ⏳ ຕ້ານຮອຍຫ່ຽວຍ່ນ
-              </button>
-            </div>
-          </div>
-        `;
-      } else if (state.quizStep === 3) {
-        body.innerHTML = `
-          <div class="space-y-4">
-            <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
-              <span>ຄຳຖາມທີ 3 ຈາກ 3</span>
-              <span>100%</span>
-            </div>
-            <h4 class="text-sm sm:text-base font-bold text-slate-900">
-              ງົບປະມານທີ່ທ່ານວາງໄວ້ສຳລັບເຊັດສະກິນແຄ?
-            </h4>
-            
-            <div class="space-y-2">
-              <button onclick="selectQuizAnswer('budget', 'low')" class="w-full p-3.5 rounded-xl border border-slate-200 hover:border-[#C1992A] hover:bg-amber-50/50 text-left transition font-semibold text-xs flex justify-between items-center">
-                <span>ງົບປະຢັດ (ເລີ່ມຕົ້ນ)</span>
-                <span class="text-slate-500 font-mono">< 400,000 LAK</span>
-              </button>
-              <button onclick="selectQuizAnswer('budget', 'mid')" class="w-full p-3.5 rounded-xl border border-slate-200 hover:border-[#C1992A] hover:bg-amber-50/50 text-left transition font-semibold text-xs flex justify-between items-center">
-                <span>ງົບປານກາງ (ຄຸ້ມຄ່າ)</span>
-                <span class="text-slate-500 font-mono">400,000 – 800,000 LAK</span>
-              </button>
-              <button onclick="selectQuizAnswer('budget', 'high')" class="w-full p-3.5 rounded-xl border border-slate-200 hover:border-[#C1992A] hover:bg-amber-50/50 text-left transition font-semibold text-xs flex justify-between items-center">
-                <span>ເຊັດພຣີມ້ຽມຄົບວົງຈອນ</span>
-                <span class="text-slate-500 font-mono">800,000+ LAK</span>
-              </button>
-            </div>
-          </div>
-        `;
-      } else {
-        renderQuizResults();
+      if (!aiChatState.messages || aiChatState.messages.length === 0) {
+        aiChatState.messages = [getAiDefaultWelcome()];
       }
+      openModal('modal-quiz');
+      renderAiChatMessages();
+      setTimeout(() => {
+        const input = document.getElementById('ai-chat-input');
+        if (input && window.innerWidth >= 640) input.focus();
+      }, 300);
     }
 
-    function selectQuizAnswer(field, val) {
-      state.quizAnswers[field] = val;
-      state.quizStep += 1;
-      renderQuizStep();
+    function resetAiChat() {
+      aiChatState.messages = [getAiDefaultWelcome()];
+      aiChatState.isThinking = false;
+      renderAiChatMessages();
+      showToast("ເລີ່ມຕົ້ນການສົນທະນາໃໝ່ແລ້ວ ✨");
     }
 
-    function renderQuizResults() {
-      const body = document.getElementById('quiz-body');
-      let recommendedIds = [1, 7];
-      if (state.quizAnswers.concern === 'darkspots') recommendedIds = [4, 7];
-      else if (state.quizAnswers.concern === 'dryness') recommendedIds = [3, 5];
-      else if (state.quizAnswers.concern === 'acne') recommendedIds = [1, 6];
+    function renderAiChatMessages() {
+      const container = document.getElementById('ai-chat-messages');
+      if (!container) return;
 
-      const recProducts = PRODUCTS.filter(p => recommendedIds.includes(p.id));
+      let html = `
+        <!-- Scope Reminder Tag -->
+        <div class="text-center w-full min-w-0 mb-1">
+          <span class="text-[9px] sm:text-[10px] font-bold text-[#8C6D19] bg-amber-50/90 border border-[#DFC68A] px-3 py-0.5 rounded-full uppercase tracking-wider inline-flex items-center gap-1 shadow-2xs">
+            <span>🔒</span> ແນະນຳສະເພາະສິນຄ້າແທ້ໃນຮ້ານ MUANJAI
+          </span>
+        </div>
+      `;
 
-      body.innerHTML = `
-        <div class="space-y-4">
-          <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
-            <span class="text-xs font-bold text-emerald-700">✓ ວິເຄາະສູດສຳເລັດແລ້ວ!</span>
-            <p class="text-[11px] text-emerald-600 mt-0.5">
-              ເໝາະສຳລັບຜິວ: <strong>${state.quizAnswers.skinType}</strong> • ບັນຫາ: <strong>${state.quizAnswers.concern}</strong>
-            </p>
-          </div>
-
-          <h4 class="text-sm font-bold text-slate-800">ສິນຄ້າທີ່ແນະນຳສຳລັບທ່ານ:</h4>
-
-          <div class="space-y-2.5">
-            ${recProducts.map(p => `
-              <div class="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
-                <img src="${p.image}" alt="${p.name}" class="w-12 h-12 rounded-lg object-contain bg-white" referrerpolicy="no-referrer">
-                <div class="flex-1 min-w-0 text-xs">
-                  <h6 class="font-bold text-slate-900 truncate">${p.name}</h6>
-                  <p class="text-[11px] text-[#9A781D] font-mono font-bold">${formatMoney(p.price)}</p>
-                </div>
-                <button onclick="quickAddToCart(${p.id})" class="px-3 py-1.5 bg-[#C1992A] text-white text-[11px] font-bold rounded-lg hover:brightness-105">
-                  + ເພີ່ມ
-                </button>
+      aiChatState.messages.forEach((msg) => {
+        if (msg.role === 'user') {
+          html += `
+            <div class="flex items-start justify-end gap-1.5 ml-auto max-w-[88%] sm:max-w-[82%]">
+              <div class="p-2.5 sm:p-3.5 rounded-2xl rounded-tr-xs bg-gradient-to-r from-[#D4AF37] to-[#C1992A] text-slate-950 font-medium text-xs sm:text-[13px] shadow-sm leading-relaxed break-words">
+                ${escapeAiHtml(msg.text)}
               </div>
-            `).join('')}
+            </div>
+          `;
+        } else {
+          // Assistant bubble
+          const formattedText = formatAiMessageText(msg.text);
+          html += `
+            <div class="flex items-start gap-2 w-full min-w-0">
+              <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-xl bg-gradient-to-tr from-[#C1992A] to-[#E8D49E] text-slate-950 flex items-center justify-center text-[10px] sm:text-xs font-bold flex-shrink-0 mt-0.5 shadow-2xs">
+                ✨
+              </div>
+              <div class="space-y-2 flex-1 min-w-0">
+                <div class="p-2.5 sm:p-3.5 rounded-2xl rounded-tl-xs bg-white border border-[#EFE9DB] shadow-2xs text-xs sm:text-[13px] text-stone-800 leading-relaxed space-y-1.5 break-words">
+                  ${formattedText}
+                </div>
+          `;
+
+          // Quick prompt chips
+          if (msg.chips && msg.chips.length > 0) {
+            html += `
+              <div class="flex flex-wrap gap-1 pt-0.5">
+                ${msg.chips.map(chip => `
+                  <button type="button" onclick="handleQuickChipClick('${escapeAiAttr(chip.query)}')" class="px-2.5 py-1 rounded-full bg-white border border-[#DFC68A] text-[9px] sm:text-[10px] font-bold text-[#8C6D19] shadow-2xs cursor-pointer hover:bg-amber-50 active:scale-95 transition">
+                    ${chip.label}
+                  </button>
+                `).join('')}
+              </div>
+            `;
+          }
+
+          // Recommended Product Cards
+          if (msg.productIds && msg.productIds.length > 0) {
+            html += `<div class="space-y-1.5 pt-1">`;
+            msg.productIds.forEach(pid => {
+              const product = PRODUCTS.find(p => p.id === pid);
+              if (product) {
+                html += renderAiProductCardHtml(product);
+              }
+            });
+            html += `</div>`;
+          }
+
+          html += `
+              </div>
+            </div>
+          `;
+        }
+      });
+
+      // Thinking Indicator
+      if (aiChatState.isThinking) {
+        html += `
+          <div class="flex items-start gap-2 w-full min-w-0 animate-pulse">
+            <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-xl bg-gradient-to-tr from-[#C1992A] to-[#E8D49E] text-slate-950 flex items-center justify-center text-[10px] sm:text-xs font-bold flex-shrink-0 mt-0.5 shadow-2xs">
+              ✨
+            </div>
+            <div class="p-2.5 sm:p-3 rounded-2xl rounded-tl-xs bg-white border border-[#EFE9DB] shadow-2xs text-xs text-stone-600 flex items-center gap-2">
+              <span class="inline-flex gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" style="animation-delay: 0.2s"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" style="animation-delay: 0.4s"></span>
+              </span>
+              <span class="text-[11px] font-medium text-amber-800">ກຳລັງວິເຄາະສະພາບຜິວ ແລະ ເລືອກສິນຄ້າ...</span>
+            </div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function renderAiProductCardHtml(product) {
+      return `
+        <div class="bg-white rounded-2xl border-2 border-amber-300/80 p-2 sm:p-2.5 shadow-xs space-y-1.5">
+          <div class="flex items-center gap-2 min-w-0">
+            <div class="w-11 h-11 rounded-xl overflow-hidden bg-stone-50 border border-stone-200/80 flex-shrink-0 p-0.5 cursor-pointer" onclick="openProductDetail(${product.id})">
+              <img src="${product.image}" alt="${product.name}" class="w-full h-full object-contain" referrerpolicy="no-referrer">
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1">
+                <span class="text-[8px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 text-[#9A781D] flex-shrink-0">${product.badge || 'RECOMMENDED'}</span>
+                <span class="text-[8px] text-stone-400 font-semibold uppercase truncate">${product.brand || 'MUANJAI'}</span>
+              </div>
+              <h5 class="font-extrabold text-[11px] sm:text-xs text-stone-900 truncate cursor-pointer hover:text-[#C1992A]" onclick="openProductDetail(${product.id})">
+                ${product.name}
+              </h5>
+              <div class="flex items-baseline gap-1.5">
+                <span class="text-xs sm:text-sm font-extrabold text-[#9A781D] font-mono">${formatMoney(product.price)}</span>
+                ${product.originalPrice ? `<span class="text-[9px] text-stone-400 line-through font-mono">${formatMoney(product.originalPrice)}</span>` : ''}
+              </div>
+            </div>
           </div>
 
-          <div class="pt-2 flex gap-2">
-            <button onclick="addAllRecommendedToCart([${recommendedIds.join(',')}])" class="w-full py-3 bg-gradient-to-r from-[#D4AF37] to-[#C1992A] text-slate-950 font-bold rounded-xl text-xs hover:brightness-105 transition shadow-md">
-              + ເພີ່ມທັງໝົດໃສ່ກະຕ່າ (Add All to Cart)
+          <div class="flex items-center justify-between pt-1.5 border-t border-stone-100 text-[10px] gap-1.5">
+            <button type="button" onclick="openProductDetail(${product.id})" class="px-2 py-1 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold text-[10px] transition flex items-center gap-1 cursor-pointer">
+              <span>🔍</span> ເບິ່ງລາຍລະອຽດ
+            </button>
+            <button type="button" onclick="quickAddToCart(${product.id})" class="px-2.5 py-1 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#C1992A] text-slate-950 font-bold text-[10px] sm:text-[11px] hover:brightness-105 shadow-xs flex items-center gap-1 active:scale-95 transition flex-shrink-0 cursor-pointer">
+              <span>+ ເພີ່ມໃສ່ກະຕ່າ</span>
             </button>
           </div>
         </div>
       `;
     }
 
-    function addAllRecommendedToCart(ids) {
-      ids.forEach(id => quickAddToCart(id));
-      closeModal('modal-quiz');
-      toggleCart(true);
-      showToast("ເພີ່ມເຊັດສະກິນແຄແນະນຳໃສ່ກະຕ່າແລ້ວ! 🎉");
+    function formatAiMessageText(text) {
+      if (!text) return '';
+      // Remove raw product tags from the main text
+      let cleaned = text.replace(/\[PRODUCT:\d+\]/g, '').trim();
+      // Format markdown bold
+      cleaned = cleaned.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      // Format bullet points
+      cleaned = cleaned.split('\n').map(line => {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
+          return `<div class="flex items-start gap-1 pl-1"><span class="text-amber-500">•</span><span>${trimmed.substring(2)}</span></div>`;
+        }
+        return line ? `<p>${line}</p>` : '';
+      }).join('');
+      return cleaned;
+    }
+
+    function escapeAiHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function escapeAiAttr(str) {
+      if (!str) return '';
+      return str.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+    }
+
+    function handleQuickChipClick(queryText) {
+      submitAiChatMessage(queryText);
+    }
+
+    async function submitAiChatMessage(customText) {
+      if (aiChatState.isThinking) return;
+
+      const input = document.getElementById('ai-chat-input');
+      const text = customText || (input ? input.value : '');
+      const trimmed = (text || '').trim();
+      if (!trimmed) return;
+
+      if (input && !customText) input.value = '';
+
+      // Append user message
+      aiChatState.messages.push({
+        role: 'user',
+        text: trimmed
+      });
+      aiChatState.isThinking = true;
+      renderAiChatMessages();
+
+      try {
+        await callGeminiAdvisorApi(trimmed);
+      } catch (err) {
+        console.warn("AI API fallback triggered:", err);
+        executeLocalAdvisorFallback(trimmed);
+      } finally {
+        aiChatState.isThinking = false;
+        renderAiChatMessages();
+      }
+    }
+
+    function buildCatalogSystemInstruction() {
+      const catalogSummary = PRODUCTS.map(p => 
+        `ID:${p.id} | ${p.name} (${p.brand}) | ລາຄາ:${p.price} LAK | ໝວດ:${p.category} | ບັນຫາ:${p.concern} | ສ່ວນປະສົມ:${(p.keyIngredients||[]).join(', ')} | ເໝາະກັບ:${(p.suitability||[]).join(', ')}`
+      ).join('\n');
+
+      return `ເຈົ້າແມ່ນ "Muanjai AI Beauty Advisor" ທີ່ປຶກສາ ແລະ ຊ່ຽວຊານດ້ານຜິວພັນປະຈຳຮ້ານ MUANJAI BEAUTY (ປະເທດລາວ).
+ເຈົ້າບໍ່ແມ່ນພະນັກງານຂາຍທີ່ຍັດເຍຍດສິນຄ້າ (ຫ້າມ Hard-Sell ເດັດຂາດ). ເຈົ້າຄືທີ່ປຶກສາທີ່ຈິງໃຈ, ສຸພາບ, ອ່ອນຫວານ ແລະ ໃຫ້ຄວາມຮູ້ແກ່ລູກຄ້າກ່ອນສະເໝີ.
+
+ກົດລະບຽບ ແລະ ຮູບແບບການຕອບ (ປະຕິບັດຕາມລຳດັບ):
+1. **Empathy & Education (ເຂົ້າໃຈ & ບອກສາເຫດກ່ອນ):**
+   - ເລີ່ມຕົ້ນດ້ວຍການທັກທາຍຢ່າງສຸພາບ ແລະ ສະແດງຄວາມເຫັນອົກເຫັນໃຈ (ຕົວຢ່າງ: "ນ້ອງເຂົ້າໃຈເລີຍເຈົ້າ ບັນຫາສິວ/ຜິວແຫ້ງອາດຈະເຮັດໃຫ້ກັງວົນໃຈ...").
+   - ອະທິບາຍສັ້ນໆ 1-2 ປະໂຫຍກເຖິງ "ສາເຫດ" ທີ່ມັກເກີດບັນຫານີ້ (ເຊັ່ນ: ຮູຂຸມຂົນອຸດຕັນ, ເກາະປ້ອງກັນຜິວອ່ອນແອ, ຂາດນ້ຳ).
+2. **Daily Skincare Tip (ເຄັດລັບການດູແລປະຈຳວັນ):**
+   - ແນະນຳເຄັດລັບງ່າຍໆໃນຊີວິດປະຈຳວັນ (ເຊັ່ນ: ຫຼີກລ່ຽງການບີບສິວ, ບໍ່ລ້າງໜ້າແຮງເກີນໄປ, ດື່ມນ້ຳ, ທາກັນແດດ).
+   - ແນະນຳກຸ່ມ "ສານສະກັດ/ສ່ວນປະສົມ" ທີ່ເໝາະສົມ (ເຊັ່ນ Heartleaf, Hyaluronic Acid, Centella, BHA).
+3. **Gentle Single Recommendation (ແນະນຳຢ່າງອ່ອນໂຍນພຽງ 1 ຕົວຫຼັກ):**
+   - ຫ້າມຍັດເຍຍດສິນຄ້າ 2-3 ຕົວພ້ອມກັນ! ໃຫ້ເລືອກສິນຄ້າທີ່ເປັນ "Hero Item" ທີ່ກົງກັບບັນຫາທີ່ສຸດພຽງ 1 ລາຍການ (ຫຼື ສູງສຸດບໍ່ເກີນ 2 ລາຍການເມື່ອຈຳເປັນແທ້ໆ).
+   - ບອກເຫດຜົນວ່າເປັນຫຍັງຈຶ່ງເລືອກຕົວນີ້ມາຊ່ວຍ.
+   - ທຸກຄັ້ງທີ່ແນະນຳ ຕ້ອງໃສ່ລະຫັດ [PRODUCT:id] ເຊັ່ນ [PRODUCT:1] ຕໍ່ທ້າຍຊື່ສິນຄ້າສະເໝີ.
+4. **Soft Follow-up (ຖາມຕໍ່ຢ່າງສຸພາບ ບໍ່ບັງຄັບຊື້):**
+   - ປິດທ້າຍດ້ວຍຄຳຖາມທີ່ອ່ອນໂຍນ ເຊັ່ນ: "ທ່ານຢາກໃຫ້ນ້ອງແນະນຳຂັ້ນຕອນການລ້າງໜ້າ ຫຼື ຄຣີມກັນແດດເພີ່ມເຕີມບໍ່ເຈົ້າ?" ຫຼື "ຕອນນີ້ທ່ານມີສະກິນແຄຣ໌ຂັ້ນຕອນໃດແລ້ວແດ່ ບອກນ້ອງໄດ້ເດີເຈົ້າ".
+5. **Language & Scope Guardrails:**
+   - ຕອບເປັນພາສາລາວທີ່ສຸພາບ (ເຈົ້າ, ເດີເຈົ້າ).
+   - ແນະນຳສະເພາະສິນຄ້າທີ່ມີໃນລາຍການ PRODUCTS ຂ້າງລຸ່ມນີ້ເທົ່ານັ້ນ. ຫ້າມແນະນຳສິນຄ້າທີ່ບໍ່ມີໃນຮ້ານ!
+   - ຖ້າລູກຄ້າຖາມເລື່ອງນອກເໜືອຈາກຄວາມງາມ ແລະ ສະກິນແຄຣ໌ ໃຫ້ປະຕິເສດຢ່າງສຸພາບ.
+
+ລາຍການສິນຄ້າໃນຮ້ານ MUANJAI BEAUTY:
+${catalogSummary}`;
+    }
+
+    async function callGeminiAdvisorApi(userQuery) {
+      const systemInstruction = buildCatalogSystemInstruction();
+
+      // Build conversation history (up to last 6 messages)
+      const recent = aiChatState.messages.slice(-6);
+      const contents = recent.map(m => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.text }]
+      }));
+
+      let lastError = null;
+
+      // Fallback loop across models
+      for (const model of GEMINI_MODELS) {
+        try {
+          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            body: JSON.stringify({
+              contents: contents,
+              systemInstruction: { parts: [{ text: systemInstruction }] },
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 2048,
+                thinkingConfig: {
+                  thinkingBudget: 0
+                }
+              }
+            })
+          });
+          clearTimeout(timeoutId);
+
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(`HTTP ${res.status}: ${errData?.error?.message || 'Failed'}`);
+          }
+
+          const data = await res.json();
+          const candidate = data?.candidates?.[0];
+          const parts = candidate?.content?.parts || [];
+          const responseText = parts.map(p => p.text || '').join('');
+
+          if (responseText && responseText.trim()) {
+            // Extract product IDs
+            const productIds = [];
+            const regex = /\[PRODUCT:(\d+)\]/g;
+            let match;
+            while ((match = regex.exec(responseText)) !== null) {
+              const pid = parseInt(match[1]);
+              if (!productIds.includes(pid)) productIds.push(pid);
+            }
+
+            // Secondary smart match: if no explicit tag was printed, check product names
+            if (productIds.length === 0) {
+              const lower = responseText.toLowerCase();
+              PRODUCTS.forEach(p => {
+                const brandMatch = p.brand && lower.includes(p.brand.toLowerCase());
+                if (brandMatch || lower.includes(p.name.toLowerCase())) {
+                  if (!productIds.includes(p.id) && productIds.length < 1) {
+                    productIds.push(p.id);
+                  }
+                }
+              });
+            }
+
+            // Limit product recommendations to at most 2 items to prevent hard-selling
+            const finalProductIds = productIds.slice(0, 2);
+
+            aiChatState.messages.push({
+              role: 'assistant',
+              text: responseText,
+              productIds: finalProductIds
+            });
+            return; // Success!
+          }
+        } catch (e) {
+          lastError = e;
+          console.warn(`Model ${model} attempt failed:`, e.message);
+          // Continue to next model in fallback list
+        }
+      }
+
+      // If all models failed, throw to local fallback
+      throw lastError || new Error("All AI models failed");
+    }
+
+    function executeLocalAdvisorFallback(query) {
+      const q = (query || '').toLowerCase();
+      let matchedIds = [];
+      let text = "";
+
+      if (q.includes("ສິວ") || q.includes("ອຸດຕັນ") || q.includes("acne")) {
+        matchedIds = [1]; // Single core hero: Anua Heartleaf Toner
+        text = `ສະບາຍດີເຈົ້າ! 🙏 ນ້ອງເຂົ້າໃຈເລີຍເຈົ້າ ບັນຫາສິວອັກເສບ ແລະ ສິວອຸດຕັນ ອາດຈະເຮັດໃຫ້ຮູ້ສຶກບໍ່ໝັ້ນໃຈເລີຍ.\n\n` +
+          `💡 **ສາເຫດ & ເຄັດລັບການດູແລ:**\n` +
+          `ສິວອັກເສບມັກເກີດຈາກນ້ຳມັນສ່ວນເກີນສະສົມຮ່ວມກັບເຊວຜິວທີ່ຕາຍແລ້ວຈົນເກີດແບັກທີເຣຍ. ສິ່ງສຳຄັນອັນດັບທຳອິດແມ່ນ **ຫຼີກລ່ຽງການບີບສິວ** ແລະ ບໍ່ຂັດຖູໜ້າແຮງເກີນໄປ. ສ່ວນປະສົມທີ່ເໝາະສົມທີ່ສຸດຄື **Heartleaf (ຜັກຄາວທອງ)** ທີ່ຊ່ວຍປອບປະໂລມ ແລະ ຫຼຸດການອັກເສບຢ່າງອ່ອນໂຍນ.\n\n` +
+          `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳ:**\n` +
+          `ສຳລັບຂັ້ນຕອນເລີ່ມຕົ້ນ ຂໍແນະນຳ [PRODUCT:1] **Anua Heartleaf 77% Soothing Toner** ເຊິ່ງຈະຊ່ວຍປອບປະໂລມຮອຍແດງ ແລະ ປັບສະພາບຜິວໃຫ້ພ້ອມຮັບການບຳລຸງໂດຍບໍ່ລະຄາຍເຄືອງເຈົ້າ.\n\n` +
+          `ຖ້າທ່ານຢາກໃຫ້ນ້ອງແນະນຳໂຟມລ້າງໜ້າ ຫຼື ຄຣີມແຕ້ມສິວຄູ່ກັນ ບອກນ້ອງໄດ້ເລີຍເດີເຈົ້າ! 😊`;
+      } else if (q.includes("ແຫ້ງ") || q.includes("ຂາດນ້ຳ") || q.includes("dry")) {
+        matchedIds = [3]; // Single core hero: Torriden Hyaluronic Serum
+        text = `ສະບາຍດີເຈົ້າ! 🙏 ສຳລັບບັນຫາຜິວແຫ້ງ ແລະ ຂາດນ້ຳ ເຮັດໃຫ້ຜິວຕຶງ ຫຼື ເບິ່ງບໍ່ສົດໃສ ນ້ອງເຂົ້າໃຈດີເລີຍເຈົ້າ.\n\n` +
+          `💡 **ສາເຫດ & ເຄັດລັບການດູແລ:**\n` +
+          `ພາວະຜິວຂາດນ້ຳເກີດຈາກເກາະປ້ອງກັນຜິວ (Skin Barrier) ສູນເສຍຄວາມຊຸ່ມຊື່ນ. ແນະນຳໃຫ້ດື່ມນ້ຳໃຫ້ພຽງພໍ, ຫຼີກລ່ຽງການລ້າງໜ້າດ້ວຍນ້ຳອຸ່ນ, ແລະ ເນັ້ນເຕີມ **Hyaluronic Acid ໂມເລກຸນນ້ອຍ** ທີ່ຊຶມເຂົ້າສູ່ຜິວໄດ້ເລິກ.\n\n` +
+          `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳ:**\n` +
+          `ນ້ອງຂໍແນະນຳ [PRODUCT:3] **Torriden Dive-In Hyaluronic Serum** ເຊິ່ງເປັນເຊຣັ່ມເຕີມນ້ຳໃຫ້ຜິວອີ່ມຟູເດັ້ງຕະຫຼອດມື້ ໂດຍບໍ່ໜຽວໜຽະໜ້າເລີຍເຈົ້າ.\n\n` +
+          `ທ່ານມີມອຍສເຈີໄຣເຊີລັອກຄວາມຊຸ່ມຊື່ນໃຊ້ຄູ່ກັນແລ້ວບໍ່ເຈົ້າ? ຖ້າຍັງບໍ່ມີ ບອກນ້ອງໄດ້ເດີເຈົ້າ!`;
+      } else if (q.includes("ແດດ") || q.includes("ກັນແດດ") || q.includes("sun")) {
+        matchedIds = [4]; // Single core hero: La Roche-Posay UVmune
+        text = `ສະບາຍດີເຈົ້າ! 🙏 ການເລືອກຄຣີມກັນແດດທີ່ເໝາະກັບຜິວເປັນເລື່ອງທີ່ສຳຄັນທີ່ສຸດໃນການດູແລຜິວເລີຍເຈົ້າ.\n\n` +
+          `💡 **ເຄັດລັບການດູແລ:**\n` +
+          `ສຳລັບຜິວໜ້າໃນອາກາດບ້ານເຮົາ ຄວນເລືອກກັນແດດເນື້ອຟລູອິດ (Fluid) ບາງເບົາ ທີ່ຄຸມມັນໄດ້ດີ ແລະ ບໍ່ອຸດຕັນຮູຂຸມຂົນ ພ້ອມທັງປົກປ້ອງ Ultra-long UVA ເພື່ອປ້ອງກັນຝ້າ-ກະ.\n\n` +
+          `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳ:**\n` +
+          `ນ້ອງຂໍແນະນຳ [PRODUCT:4] **La Roche-Posay Anthelios UVmune 400** ເຊິ່ງເປັນກັນແດດເນື້ອເບົາ ຄຸມມັນດົນ ແລະ ປົກປ້ອງຜິວໄດ້ຢ່າງໝັ້ນໃຈທີ່ສຸດເຈົ້າ.\n\n` +
+          `ທ່ານສາມາດສຶກສາຂໍ້ມູນ ຫຼື ສອບຖາມວິທີທາກັນແດດໃຫ້ມີປະສິດທິພາບສູງສຸດໄດ້ເລີຍເດີເຈົ້າ!`;
+      } else if (q.includes("ແພ້ງ່າຍ") || q.includes("ແດງ") || q.includes("sensitive")) {
+        matchedIds = [2]; // Single core hero: Skin1004 Centella
+        text = `ສະບາຍດີເຈົ້າ! 🙏 ຜິວແພ້ງ່າຍ ແລະ ລະຄາຍເຄືອງງ່າຍ ຕ້ອງໄດ້ຮັບການດູແລທີ່ອ່ອນໂຍນເປັນພິເສດເລີຍເຈົ້າ.\n\n` +
+          `💡 **ສາເຫດ & ເຄັດລັບ:**\n` +
+          `ເກາະປ້ອງກັນຜິວທີ່ອ່ອນແອມັກເຮັດໃຫ້ຜິວໄວຕໍ່ສິ່ງກະຕຸ້ນ. ແນະນຳໃຫ້ຫຼຸດຂັ້ນຕອນສະກິນແຄຣ໌ທີ່ຊັບຊ້ອນລົງ (Skinimalism) ແລະ ໃຊ້ສານສະກັດທີ່ຊ່ວຍສ້າງເກາະຜິວ ເຊັ່ນ **Centella Asiatica (ໃບບົວກົກ)**.\n\n` +
+          `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳ:**\n` +
+          `ນ້ອງຂໍແນະນຳ [PRODUCT:2] **Skin1004 Madagascar Centella Ampoule** ສານສະກັດໃບບົວກົກ 100% ທີ່ຊ່ວຍຟື້ນຟູຜິວໃຫ້ແຂງແຮງ ແລະ ຫຼຸດຮອຍແດງໄດ້ຢ່າງອ່ອນໂຍນທີ່ສຸດເຈົ້າ.\n\n` +
+          `ທ່ານຢາກປຶກສາຂັ້ນຕອນການລ້າງໜ້າສຳລັບຜິວແພ້ງ່າຍເພີ່ມເຕີມບໍ່ເຈົ້າ?`;
+      } else {
+        matchedIds = [1];
+        text = `ສະບາຍດີເຈົ້າ! 🙏 ສຳລັບການເລີ່ມຕົ້ນດູແລຜິວໜ້າ (Basic Skincare), ຫົວໃຈສຳຄັນແມ່ນການປອບປະໂລມ ແລະ ເສີມຄວາມແຂງແຮງໃຫ້ກັບຜິວເປັນອັນດັບທຳອິດ.\n\n` +
+          `✨ **ສິນຄ້າຫຼັກທີ່ນ້ອງແນະນຳສຳລັບທຸກສະພາບຜິວ:**\n` +
+          `ຂໍແນະນຳ [PRODUCT:1] **Anua Heartleaf 77% Soothing Toner** ເຊິ່ງເປັນໂທນເນີປັບສະພາບຜິວຫຼັງລ້າງໜ້າ ຊ່ວຍໃຫ້ຜິວສະຫງົບ ແລະ ດູດຊຶມຄຣີມບຳລຸງໄດ້ດີຂຶ້ນເຈົ້າ.\n\n` +
+          `ທ່ານມີບັນຫາຜິວສະເພາະໃດທີ່ຢາກປຶກສາເພີ່ມ ບອກນ້ອງໄດ້ເລີຍເດີເຈົ້າ!`;
+      }
+
+      aiChatState.messages.push({
+        role: 'assistant',
+        text: text,
+        productIds: matchedIds
+      });
     }
 
     // STORES LIST
