@@ -1216,10 +1216,45 @@
             </div>
           </div>
 
-          <!-- If Delivery -->
-          <div id="delivery-fields">
-            <label class="block text-slate-600 font-semibold mb-1">ທີ່ຢູ່ຈັດສົ່ງ ແລະ ສາຂາຂົນສົ່ງທີ່ສະດວກ *</label>
-            <textarea id="cust-address" rows="2" placeholder="ບ້ານ, ເມືອງ, ແຂວງ (ຫຼື ລະບຸ: ຝາກ ອານຸສິດ ສາຂາດົງໂດກ / ມີໄຊ / HAL)" class="w-full p-2.5 border border-[#E8DFC8] rounded-xl focus:border-[#C1992A] focus:outline-none text-[#1C1917] bg-white"></textarea>
+          <!-- If Delivery (Smart Dropdowns as requested in Image 2) -->
+          <div id="delivery-fields" class="space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-slate-800 font-bold mb-1 text-xs">1. ເລືອກແຂວງ *</label>
+                <div class="relative">
+                  <select id="cust-province" onchange="handleProvinceChange()" class="w-full p-2.5 sm:p-3 pr-8 border-2 border-[#C1992A] rounded-2xl focus:outline-none bg-white text-[#1C1917] font-bold text-xs sm:text-[13px] shadow-2xs appearance-none cursor-pointer">
+                    <!-- Populated dynamically via JS -->
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#1C1917]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-slate-800 font-bold mb-1 text-xs">2. ເລືອກເມືອງ *</label>
+                <div class="relative">
+                  <select id="cust-district" class="w-full p-2.5 sm:p-3 pr-8 border-2 border-[#C1992A] rounded-2xl focus:outline-none bg-white text-[#1C1917] font-bold text-xs sm:text-[13px] shadow-2xs appearance-none cursor-pointer">
+                    <!-- Populated dynamically via JS -->
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#1C1917]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-slate-800 font-bold mb-1 text-xs">3. ເລືອກບໍລິສັດ & ສາຂາຂົນສົ່ງ *</label>
+              <div class="relative">
+                <select id="cust-branch" class="w-full p-2.5 sm:p-3 pr-8 border-2 border-[#C1992A] rounded-2xl focus:outline-none bg-white text-[#1C1917] font-bold text-xs sm:text-[13px] shadow-2xs appearance-none cursor-pointer">
+                  <!-- Populated dynamically via JS -->
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#1C1917]">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- If Pickup -->
@@ -2260,6 +2295,7 @@
       renderStoresList();
       updateCartUI();
       initHeroSlider();
+      initLaoDeliveryDropdowns();
     });
 
     // RENDER PRODUCTS
@@ -2887,9 +2923,210 @@
       }
     }
 
+
+    // ==========================================
+    // LAOS PROVINCES, DISTRICTS & EXPRESS BRANCHES DATA
+    // Matching Image 2 Selection UI
+    // ==========================================
+    const LAO_LOCATION_DATA = {
+      "ນະຄອນຫຼວງວຽງຈັນ": {
+        districts: [
+          "ເມືອງ ຈັນທະບູລີ",
+          "ເມືອງ ສີໂຄດຕະບອງ",
+          "ເມືອງ ໄຊເສດຖາ",
+          "ເມືອງ ສີສັດຕະນາກ",
+          "ເມືອງ ນາຊາຍທອງ",
+          "ເມືອງ ໄຊທານີ",
+          "ເມືອງ ຫາດຊາຍຟອງ",
+          "ເມືອງ ສັງທອງ",
+          "ເມືອງ ປາກງື່ມ"
+        ],
+        branches: [
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ທົ່ງຂັນຄຳ",
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ດົງໂດກ (ມຊ)",
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ 3 ແຍກສີໄຄ",
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ໄອເຕັກມໍ (ITECC)",
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ໜອງຈັນ (ຕະຫຼາດເຊົ້າ)",
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ໂພນຕ້ອງ",
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ດອນໜູນ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ໃຫຍ່ດົງໂດກ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ມີໄຊ (Mixay)",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ສີໄຄ (Sikhay)",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ໂພນສະຫວ່າງ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ຈອມມະນີ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ດອນກອຍ",
+          "🛵 ມີໄຊ (Mixay Express) - ສາຂາ ວຽງຈັນສູນໃຫຍ່",
+          "🏠 ສົ່ງດ່ວນເຖິງໜ້າບ້ານ (Delivery ໃນນະຄອນຫຼວງ)"
+        ]
+      },
+      "ຫຼວງພະບາງ": {
+        districts: ["ເມືອງ ຫຼວງພະບາງ", "ເມືອງ ຊຽງເງິນ", "ເມືອງ ນານ", "ເມືອງ ປາກອູ", "ເມືອງ ນ້ຳບາກ", "ເມືອງ ງອຍ", "ເມືອງ ຈອມເພັດ", "ເມືອງ ພູຄູນ"],
+        branches: [
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ໃຫຍ່ນະຄອນຫຼວງພະບາງ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ຫຼວງພະບາງ (ໃກ້ສູນວັດທະນະທຳ)",
+          "🛵 ມີໄຊ (Mixay Express) - ສາຂາ ຫຼວງພະບາງ",
+          "🚌 ຝາກຄິວລົດສາຍເໜືອ ຫຼວງພະບາງ"
+        ]
+      },
+      "ຈຳປາສັກ": {
+        districts: ["ເມືອງ ປາກເຊ", "ເມືອງ ຊະນະສົມບູນ", "ເມືອງ ບາຈຽງຈະເລີນສຸກ", "ເມືອງ ປາກຊ່ອງ", "ເມືອງ ປະທຸມພອນ", "ເມືອງ ໂພນທອງ", "ເມືອງ ຈຳປາສັກ", "ເມືອງ ໂຂງ"],
+        branches: [
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ໃຫຍ່ນະຄອນປາກເຊ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ປາກເຊ (ຖະໜົນຫຼັກ 2)",
+          "🛵 ມີໄຊ (Mixay Express) - ສາຂາ ປາກເຊ",
+          "🚌 ຝາກຄິວລົດສາຍໃຕ້ ປາກເຊ"
+        ]
+      },
+      "ສະຫວັນນະເຂດ": {
+        districts: ["ເມືອງ ໄກສອນ ພົມວິຫານ", "ເມືອງ ອຸທຸມພອນ", "ເມືອງ ອາດສະພັງທອງ", "ເມືອງ ພິນ", "ເມືອງ ເຊໂປນ", "ເມືອງ ສອງຄອນ", "ເມືອງ ຈຳພອນ", "ເມືອງ ໄຊພູທອງ"],
+        branches: [
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ໃຫຍ່ສະຫວັນນະເຂດ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ໄກສອນ ພົມວິຫານ",
+          "🛵 ມີໄຊ (Mixay Express) - ສາຂາ ສະຫວັນນະເຂດ"
+        ]
+      },
+      "ວຽງຈັນ (ແຂວງ)": {
+        districts: ["ເມືອງ ໂພນໂຮງ", "ເມືອງ ທຸລະຄົມ", "ເມືອງ ແກ້ວອຸດົມ", "ເມືອງ ກາສີ", "ເມືອງ ວັງວຽງ", "ເມືອງ ເຟືອງ", "ເມືອງ ຊະນະຄາມ", "ເມືອງ ຫີນເຫີບ"],
+        branches: [
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ໂພນໂຮງ",
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ວັງວຽງ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ໂພນໂຮງ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ວັງວຽງ"
+        ]
+      },
+      "ຄຳມ່ວນ": {
+        districts: ["ເມືອງ ທ່າແຂກ", "ເມືອງ ມະຫາໄຊ", "ເມືອງ ໜອງບົກ", "ເມືອງ ຫີນບູນ", "ເມືອງ ຍົມມະລາດ", "ເມືອງ ບົວລະພາ", "ເມືອງ ນາກາຍ", "ເມືອງ ເຊບັ້ງໄຟ"],
+        branches: [
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ທ່າແຂກ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ທ່າແຂກ"
+        ]
+      },
+      "ບໍລິຄຳໄຊ": {
+        districts: ["ເມືອງ ປາກຊັນ", "ເມືອງ ທ່າພະບາດ", "ເມືອງ ປາກກະດິງ", "ເມືອງ ບໍລິຄັນ", "ເມືອງ ຄຳເກີດ", "ເມືອງ ວຽງທອງ"],
+        branches: [
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ປາກຊັນ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ປາກຊັນ"
+        ]
+      },
+      "ອຸດົມໄຊ": {
+        districts: ["ເມືອງ ໄຊ", "ເມືອງ ຫຼາ", "ເມືອງ ນາໝໍ້", "ເມືອງ ງາ", "ເມືອງ ແບ່ງ", "ເມືອງ ຮຸນ", "ເມືອງ ປາກແບ່ງ"],
+        branches: [
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ເມືອງໄຊ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ເມືອງໄຊ"
+        ]
+      },
+      "ບໍ່ແກ້ວ": {
+        districts: ["ເມືອງ ຫ້ວຍຊາຍ", "ເມືອງ ຕົ້ນເຜິ້ງ (ສາມຫຼ່ຽມຄຳ)", "ເມືອງ ເມິງ", "ເມືອງ ຜາອຸດົມ", "ເມືອງ ປາກທາ"],
+        branches: [
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ຫ້ວຍຊາຍ",
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ສາມຫຼ່ຽມຄຳ (ຕົ້ນເຜິ້ງ)",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ຫ້ວຍຊາຍ"
+        ]
+      },
+      "ຫຼວງນ້ຳທາ": {
+        districts: ["ເມືອງ ຫຼວງນ້ຳທາ", "ເມືອງ ສິງ", "ເມືອງ ລອງ", "ເມືອງ ວຽງພູຄາ", "ເມືອງ ນາແລ"],
+        branches: [
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ຫຼວງນ້ຳທາ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ຫຼວງນ້ຳທາ"
+        ]
+      },
+      "ຊຽງຂວາງ": {
+        districts: ["ເມືອງ ແປກ (ໂພນສະຫວັນ)", "ເມືອງ ຄຳ", "ເມືອງ ໜອງແຮດ", "ເມືອງ ກູນ", "ເມືອງ ໝອກໃໝ່", "ເມືອງ ພູກູດ", "ເມືອງ ຜາໄຊ"],
+        branches: [
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ໂພນສະຫວັນ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ໂພນສະຫວັນ"
+        ]
+      },
+      "ໄຊຍະບູລີ": {
+        districts: ["ເມືອງ ໄຊຍະບູລີ", "ເມືອງ ຄອບ", "ເມືອງ ຮົງສາ", "ເມືອງ ເງິນ", "ເມືອງ ຊຽງຮ່ອນ", "ເມືອງ ພຽງ", "ເມືອງ ປາກລາຍ", "ເມືອງ ແກ່ນທ້າວ"],
+        branches: [
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ໄຊຍະບູລີ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ໄຊຍະບູລີ"
+        ]
+      },
+      "ສາລະວັນ": {
+        districts: ["ເມືອງ ສາລະວັນ", "ເມືອງ ຕະໂອ້ຍ", "ເມືອງ ຕຸ້ມລານ", "ເມືອງ ລະຄອນເພັງ", "ເມືອງ ວາປີ", "ເມືອງ ຄົງເຊໂດນ", "ເມືອງ ເລົ່າງາມ"],
+        branches: [
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ສາລະວັນ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ສາລະວັນ"
+        ]
+      },
+      "ເຊກອງ": {
+        districts: ["ເມືອງ ລະມາມ", "ເມືອງ ກະລຶມ", "ເມືອງ ດາກຈຶງ", "ເມືອງ ທ່າແຕງ"],
+        branches: [
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ເຊກອງ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ເຊກອງ"
+        ]
+      },
+      "ອັດຕະປື": {
+        districts: ["ເມືອງ ສາມັກຄີໄຊ", "ເມືອງ ໄຊເສດຖາ", "ເມືອງ ສະໜາມໄຊ", "ເມືອງ ສານໄຊ", "ເມືອງ ພູວົງ"],
+        branches: [
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ອັດຕະປື",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ອັດຕະປື"
+        ]
+      },
+      "ຫົວພັນ": {
+        districts: ["ເມືອງ ຊຳເໜືອ", "ເມືອງ ຊຽງຄໍ້", "ເມືອງ ຮ້ຽມ", "ເມືອງ ວຽງໄຊ", "ເມືອງ ຫົວເມືອງ", "ເມືອງ ຊຳໃຕ້", "ເມືອງ ສົບເບົາ"],
+        branches: [
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ຊຳເໜືອ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ຊຳເໜືອ"
+        ]
+      },
+      "ຜົ້ງສາລີ": {
+        districts: ["ເມືອງ ຜົ້ງສາລີ", "ເມືອງ ໃໝ່", "ເມືອງ ຂວາ", "ເມືອງ ສຳພັນ", "ເມືອງ ບຸນເໜືອ", "ເມືອງ ຍອດອູ", "ເມືອງ ບຸນໃຕ້"],
+        branches: [
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ຜົ້ງສາລີ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ຜົ້ງສາລີ"
+        ]
+      },
+      "ໄຊສົມບູນ": {
+        districts: ["ເມືອງ ອະນຸວົງ", "ເມືອງ ລ້ອງແຈ້ງ", "ເມືອງ ຮົ່ມ", "ເມືອງ ລ້ອງຊານ", "ເມືອງ ທ່າໂທມ"],
+        branches: [
+          "📦 ຮຸ່ງອາລຸນ (HAL) - ສາຂາ ໄຊສົມບູນ",
+          "🚚 ອານຸສິດ (Anousith) - ສາຂາ ໄຊສົມບູນ"
+        ]
+      }
+    };
+
+    function initLaoDeliveryDropdowns() {
+      const provinceSelect = document.getElementById("cust-province");
+      const districtSelect = document.getElementById("cust-district");
+      const branchSelect = document.getElementById("cust-branch");
+      if (!provinceSelect || !districtSelect || !branchSelect) return;
+
+      if (provinceSelect.options.length === 0) {
+        provinceSelect.innerHTML = Object.keys(LAO_LOCATION_DATA).map(prov => 
+          `<option value="${prov}" ${prov === "ນະຄອນຫຼວງວຽງຈັນ" ? "selected" : ""}>${prov}</option>`
+        ).join("");
+      }
+
+      handleProvinceChange();
+    }
+
+    function handleProvinceChange() {
+      const provinceSelect = document.getElementById("cust-province");
+      const districtSelect = document.getElementById("cust-district");
+      const branchSelect = document.getElementById("cust-branch");
+      if (!provinceSelect || !districtSelect || !branchSelect) return;
+
+      const selectedProvince = provinceSelect.value;
+      const data = LAO_LOCATION_DATA[selectedProvince] || LAO_LOCATION_DATA["ນະຄອນຫຼວງວຽງຈັນ"];
+
+      // Update Districts
+      districtSelect.innerHTML = data.districts.map(dist => 
+        `<option value="${dist}">${dist}</option>`
+      ).join("");
+
+      // Update Branches
+      branchSelect.innerHTML = data.branches.map(br => 
+        `<option value="${br}">${br}</option>`
+      ).join("");
+    }
+
     // CHECKOUT MODAL LOGIC
     function openCheckoutModal() {
       toggleCart(false);
+      initLaoDeliveryDropdowns();
 
       let subtotal = 0;
       state.cart.forEach(item => {
@@ -2964,9 +3201,12 @@
 
       document.getElementById('receipt-order-id').textContent = "#" + refCode;
       document.getElementById('receipt-customer-name').textContent = name;
+      const prov = document.getElementById('cust-province') ? document.getElementById('cust-province').value : '';
+      const dist = document.getElementById('cust-district') ? document.getElementById('cust-district').value : '';
+      const brn = document.getElementById('cust-branch') ? document.getElementById('cust-branch').value : '';
       document.getElementById('receipt-delivery-type').textContent = state.deliveryMethod === 'pickup' 
         ? "Click & Collect (ຮັບທີ່ສາຂາ " + document.getElementById('pickup-branch').options[document.getElementById('pickup-branch').selectedIndex].text + ")"
-        : "ຂົນສົ່ງເອກະຊົນເຖິງບ້ານ (Anousith/HAL)";
+        : `${brn} (${dist}, ${prov})`;
       document.getElementById('receipt-total-amount').textContent = totalStr;
 
       const currentPoints = parseInt(document.getElementById('member-points').textContent.replace(',', '')) || 1250;
